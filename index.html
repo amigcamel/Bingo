@@ -1,0 +1,75 @@
+<html>
+	<head>
+		 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+		<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.5/css/bootstrap-dialog.min.css" rel="stylesheet">
+		<link href="bingo.css" rel="stylesheet">
+	</head>
+	<body>
+		<div class="jumbotron text-center">
+			<h1>賓果樂</h1>
+			<h2>遊戲規則</h2>
+			<p>系統會從1~75中隨機選出25個數字<br>
+			   凡連線數達<span class="ball">5</span>條者<br>即可獲得「神秘禮物」乙份
+			</p>
+		</div>
+		<div class="cont">
+			<div class="text-center">
+				<div class='row'>
+					<div class="col-xs-offset-3 col-xs-6">
+						<p class="alert">連線數： <span id="lines">0</span></p>
+					</div>
+				</div>
+
+				<div class='row row-centered'>
+					<div class="col-xs-2 col-centered f" id="a1"></div>
+					<div class="col-xs-2 col-centered f" id="a2"></div>
+					<div class="col-xs-2 col-centered f" id="a3"></div>
+					<div class="col-xs-2 col-centered f" id="a4"></div>
+					<div class="col-xs-2 col-centered f" id="a5"></div>
+				</div>
+				<div class='row row-centered'>
+					<div class="col-xs-2 col-centered f" id="b1"></div>
+					<div class="col-xs-2 col-centered f" id="b2"></div>
+					<div class="col-xs-2 col-centered f" id="b3"></div>
+					<div class="col-xs-2 col-centered f" id="b4"></div>
+					<div class="col-xs-2 col-centered f" id="b5"></div>
+				</div>
+				<div class='row row-centered'>
+					<div class="col-xs-2 col-centered f" id="c1"></div>
+					<div class="col-xs-2 col-centered f" id="c2"></div>
+					<div class="col-xs-2 col-centered f" id="c3"></div>
+					<div class="col-xs-2 col-centered f" id="c4"></div>
+					<div class="col-xs-2 col-centered f" id="c5"></div>
+				</div>
+				<div class='row row-centered'>
+					<div class="col-xs-2 col-centered f" id="d1"></div>
+					<div class="col-xs-2 col-centered f" id="d2"></div>
+					<div class="col-xs-2 col-centered f" id="d3"></div>
+					<div class="col-xs-2 col-centered f" id="d4"></div>
+					<div class="col-xs-2 col-centered f" id="d5"></div>
+				</div>
+				<div class='row row-centered'>
+					<div class="col-xs-2 col-centered f" id="e1"></div>
+					<div class="col-xs-2 col-centered f" id="e2"></div>
+					<div class="col-xs-2 col-centered f" id="e3"></div>
+					<div class="col-xs-2 col-centered f" id="e4"></div>
+					<div class="col-xs-2 col-centered f" id="e5"></div>
+				</div>
+				<br>
+				<button class="btn btn-danger btn-lg hide" id="joke">直接破關！</button>
+			</div>
+		</div>
+
+		<div id="footer">
+			<div class="container text-center">
+				Designed by <a href="http://ajiblog.herokuapp.com">阿吉</a> , 技術顧問：沈大大, 2015
+			</div>
+		</div>
+		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.5/js/bootstrap-dialog.min.js"></script>
+		<script src="bingo.js"></script>		
+	</body>
+</html>
+

@@ -1,0 +1,91 @@
+body {
+	background-image: url('paisley.png');
+	background-repeat: repeat;
+}
+
+h1 {
+    font-size: 100px !important;
+}
+
+p {
+    font-size: 35px !important; 
+}
+
+.cont {
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.f {
+	background: #FFF380;
+	border: 2px solid white;
+	width: 20%;
+	height: 0;
+	padding-bottom: 20%;
+	cursor: pointer;
+}
+
+.sel {
+	background: #808CFF !important;
+}
+
+/*http://www.minimit.com/articles/solutions-tutorials/bootstrap-3-responsive-centered-columns*/
+.row-centered {
+    text-align: center;
+}
+
+.col-centered {
+    text-align: center;
+    display: inline-block;
+    float: none;
+    margin-right: -4px;
+}
+
+.jumbotron {
+	/*color: #FEFCFF;*/
+	background: rgba( 232, 173, 170, 0.7) !important;
+
+}
+
+.alert {
+	font-size: 20px;
+}
+
+.ball {
+	display: inline-block;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    background: black;
+    color: white;
+    text-align: center;
+}
+
+#footer {
+    font-size: 20px;
+    height: 60px;
+    background-color: rgba(253, 238, 244, 0.6);
+    margin-top: 50px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+@media all and (min-width: 960px) {
+    .col-centered {
+        font-size: 100px;
+    }
+}
+ 
+@media all and (max-width: 959px) and (min-width: 600px) {
+    .col-centered {
+        font-size: 50px;
+    }
+}
+ 
+@media all and (max-width: 599px) and (min-width: 320px) {
+    .col-centered {
+        font-size: 25px;
+    }
+ 
+}
