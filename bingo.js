@@ -75,7 +75,7 @@ $(function () {
 	 	$('#joke').removeClass('hide');
 	 }, 5000);
 	$('.container').on('touchstart click', '#joke', function(e) {
-		e.preventDefault();/
+		e.preventDefault();
 		tits = ['你確定', '想太多了'];
 		msgs = ['<h3>真的要放棄了嗎？</h3>', '<h3>哪有這麼好康的事情 = = </h3>'];
 		oks = ['我要放棄', '我錯了>"<'];
