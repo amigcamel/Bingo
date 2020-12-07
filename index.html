@@ -20,55 +20,32 @@
 						<p class="alert">連線數： <span id="lines">0</span></p>
 					</div>
 				</div>
-
-				<div class='row row-centered'>
-					<div class="col-xs-2 col-centered f" id="a1"></div>
-					<div class="col-xs-2 col-centered f" id="a2"></div>
-					<div class="col-xs-2 col-centered f" id="a3"></div>
-					<div class="col-xs-2 col-centered f" id="a4"></div>
-					<div class="col-xs-2 col-centered f" id="a5"></div>
-				</div>
-				<div class='row row-centered'>
-					<div class="col-xs-2 col-centered f" id="b1"></div>
-					<div class="col-xs-2 col-centered f" id="b2"></div>
-					<div class="col-xs-2 col-centered f" id="b3"></div>
-					<div class="col-xs-2 col-centered f" id="b4"></div>
-					<div class="col-xs-2 col-centered f" id="b5"></div>
-				</div>
-				<div class='row row-centered'>
-					<div class="col-xs-2 col-centered f" id="c1"></div>
-					<div class="col-xs-2 col-centered f" id="c2"></div>
-					<div class="col-xs-2 col-centered f" id="c3"></div>
-					<div class="col-xs-2 col-centered f" id="c4"></div>
-					<div class="col-xs-2 col-centered f" id="c5"></div>
-				</div>
-				<div class='row row-centered'>
-					<div class="col-xs-2 col-centered f" id="d1"></div>
-					<div class="col-xs-2 col-centered f" id="d2"></div>
-					<div class="col-xs-2 col-centered f" id="d3"></div>
-					<div class="col-xs-2 col-centered f" id="d4"></div>
-					<div class="col-xs-2 col-centered f" id="d5"></div>
-				</div>
-				<div class='row row-centered'>
-					<div class="col-xs-2 col-centered f" id="e1"></div>
-					<div class="col-xs-2 col-centered f" id="e2"></div>
-					<div class="col-xs-2 col-centered f" id="e3"></div>
-					<div class="col-xs-2 col-centered f" id="e4"></div>
-					<div class="col-xs-2 col-centered f" id="e5"></div>
-				</div>
+        <template v-for="(prefix, idx1) in prefixes">
+          <div class='row row-centered'>
+            <div 
+              v-for="(number, idx2) in numbers"
+              class="col-xs-2 col-centered f"
+              :id="prefix + number"
+              :style="{ 'background-image': 'url(' + cellImg(idx1, idx2) + ')' }"
+            >
+            </div>
+          </div>
+        </template>
 				<br>
-				<button class="btn btn-danger btn-lg hide" id="joke">直接破關！</button>
+				<button class="btn btn-danger btn-lg" id="joke">Verify</button>
 			</div>
 		</div>
 
 		<div id="footer">
 			<div class="container text-center">
-				Designed by <a href="http://ajiblog.herokuapp.com">阿吉</a> , 技術顧問：沈大大, 2015
+				Designed by <a href="https://aji.tw">阿吉</a> 
 			</div>
 		</div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.5/js/bootstrap-dialog.min.js"></script>
+		<script src="data.js"></script>		
 		<script src="bingo.js"></script>		
 	</body>
 </html>

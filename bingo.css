@@ -18,6 +18,7 @@ p {
 
 .f {
 	background: #FFF380;
+  background-size: cover;
 	border: 2px solid white;
 	width: 20%;
 	height: 0;
