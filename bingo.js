@@ -57,10 +57,10 @@ var app = new Vue({
   },
   methods: {
     cellText: function(idx1, idx2) {
-      return this.sids[(idx1 * this.$gridnum) + idx2]
+      return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name
     },
     cellImg: function(idx1, idx2) {
-      return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]]
+      return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].uri
     },
     toggle: function(idx1, idx2) {
       Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
