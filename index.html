@@ -10,11 +10,11 @@
       <div class="jumbotron text-center">
         <h1>大頭賓果</h1>
         <h2>遊戲規則</h2>
-        <p>系統會從1~75中隨機選出{{   }}個數字<br>
+        <p>系統會從所有員工大頭照中隨機選出<span v-text="Math.pow(this.$gridnum, 2)"></span>張<br>
            凡連線數達<span class="ball">{{ win }}</span>條者<br>即可獲得「現金大禮」
         </p>
       </div>
-      <div class="cont" :class="{container: !isMobile()}">
+      <div class="cont" :class="{container: !isMobile}">
         <div class="text-center">
           <div class='row'>
             <div class="col-xs-offset-3 col-xs-6">
@@ -39,6 +39,8 @@
             </div>
           </template>
           <br>
+          <button class="btn btn-info btn-lg" @click="shuffleSids()" :disabled="isStarted">Shuffle</button>
+          <button class="btn btn-warning btn-lg" @click="startGame()" :disabled="isStarted">Start</button>
           <button class="btn btn-danger btn-lg" :disabled="lineCount < win">Verify</button>
         </div>
       </div>

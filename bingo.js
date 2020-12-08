@@ -22,6 +22,23 @@ function getRandom(arr, n) {
   return result;
 }
 
+function getRandomSids() {
+  const sids = getRandom(Object.keys(hsdic), Math.pow(Vue.prototype.$gridnum, 2));
+  localStorage.setItem("sids", sids);
+  return sids;
+}
+
+
+function getSids() {
+  let sids = localStorage.getItem("sids");
+  if (sids) {
+    sids = sids.split(",");
+  } else {
+    sids = getRandomSids();
+  }
+  return sids;
+}
+
 
 Vue.prototype.$gridnum = 5;
 
@@ -30,7 +47,8 @@ var app = new Vue({
   data: {
     win: 5,
     matrix: genMatrix(Vue.prototype.$gridnum),
-    sids: getRandom(Object.keys(hsdic), Math.pow(Vue.prototype.$gridnum, 2)),
+    sids: getSids(),
+    isStarted: localStorage.getItem("isStarted"),
   },
   computed: {
     lineCount: function() {
@@ -53,17 +71,6 @@ var app = new Vue({
         }
       }
       return cnt;
-    }
-  },
-  methods: {
-    cellText: function(idx1, idx2) {
-      return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name
-    },
-    cellImg: function(idx1, idx2) {
-      return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].uri
-    },
-    toggle: function(idx1, idx2) {
-      Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
     },
     isMobile: function() {
       // https://stackoverflow.com/a/50342804/1105489
@@ -73,5 +80,25 @@ var app = new Vue({
         return false
       }
     },
+  },
+  methods: {
+    shuffleSids: function() {
+      this.sids = getRandomSids();
+    },
+    cellText: function(idx1, idx2) {
+      return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name
+    },
+    cellImg: function(idx1, idx2) {
+      return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].uri
+    },
+    toggle: function(idx1, idx2) {
+      Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
+    },
+    startGame: function() {
+      if (confirm("If you click OK, you cannot shuffle anymore. Are you sure?")) {
+        localStorage.setItem("isStarted", 1);
+        this.isStarted = true;
+      }
+    }
   }
 })
