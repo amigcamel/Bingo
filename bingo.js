@@ -22,29 +22,33 @@ function getRandom(arr, n) {
   return result;
 }
 
+
+Vue.prototype.$gridnum = 5;
+
 var app = new Vue({
-  el: '.cont',
+  el: '#app',
   data: {
-    matrix: genMatrix(5),
-    sids: getRandom(Object.keys(hsdic), 5 * 5),
+    win: 5,
+    matrix: genMatrix(Vue.prototype.$gridnum),
+    sids: getRandom(Object.keys(hsdic), Math.pow(Vue.prototype.$gridnum, 2)),
   },
   computed: {
     lineCount: function() {
-      const sums = Array(5 * 2 + 2).fill(0);
-      for (let r=0; r < 5; r++) {
-        for (let c=0; c < 5; c++) {
+      const sums = Array(this.$gridnum * 2 + 2).fill(0);
+      for (let r=0; r < this.$gridnum; r++) {
+        for (let c=0; c < this.$gridnum; c++) {
           let val = this.matrix[r][c];
           sums[r] += val;
-          sums[5 + c] += val;
+          sums[this.$gridnum + c] += val;
         }
         // diagonal
-        sums[5 * 2 + 0] += this.matrix[r][r];
-        sums[5 * 2 + 1] += this.matrix[r][5 - r - 1]
+        sums[this.$gridnum * 2 + 0] += this.matrix[r][r];
+        sums[this.$gridnum * 2 + 1] += this.matrix[r][this.$gridnum - r - 1]
       }
 
       let cnt = 0;
       for (let sum of sums) {
-        if (sum == 5) {
+        if (sum == this.$gridnum) {
           cnt += 1;
         }
       }
@@ -53,13 +57,21 @@ var app = new Vue({
   },
   methods: {
     cellText: function(idx1, idx2) {
-      return this.sids[(idx1 * 5) + idx2]
+      return this.sids[(idx1 * this.$gridnum) + idx2]
     },
     cellImg: function(idx1, idx2) {
-      return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * 5) + idx2]]
+      return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]]
     },
     toggle: function(idx1, idx2) {
       Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
+    },
+    isMobile: function() {
+      // https://stackoverflow.com/a/50342804/1105489
+      if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        return true
+      } else {
+        return false
+      }
     },
   }
 })

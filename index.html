@@ -6,42 +6,45 @@
 		<link href="bingo.css" rel="stylesheet">
 	</head>
 	<body>
-		<div class="jumbotron text-center">
-			<h1>賓果樂</h1>
-			<h2>遊戲規則</h2>
-			<p>系統會從1~75中隨機選出25個數字<br>
-			   凡連線數達<span class="ball">5</span>條者<br>即可獲得「神秘禮物」乙份
-			</p>
-		</div>
-		<div class="cont">
-			<div class="text-center">
-				<div class='row'>
-					<div class="col-xs-offset-3 col-xs-6">
-            <p class="alert">連線數： {{ lineCount }}</p>
-					</div>
-				</div>
-        <template v-for="(arr, idx1) in matrix">
-          <div class='row row-centered'>
-            <div 
-              v-for="(_, idx2) in arr"
-              class="col-xs-2 col-centered f"
-              :style="{ 'background-image': 'url(' + cellImg(idx1, idx2) + ')' }"
-              :class="{ sel: matrix[idx1][idx2] }"
-              @click="toggle(idx1, idx2)"
-            >
+    <div id="app">
+      <div class="jumbotron text-center">
+        <h1>大頭賓果</h1>
+        <h2>遊戲規則</h2>
+        <p>系統會從1~75中隨機選出{{   }}個數字<br>
+           凡連線數達<span class="ball">{{ win }}</span>條者<br>即可獲得「現金大禮」
+        </p>
+      </div>
+      <div class="cont" :class="{container: !isMobile()}">
+        <div class="text-center">
+          <div class='row'>
+            <div class="col-xs-offset-3 col-xs-6">
+              <p class="alert">連線數： {{ lineCount }}</p>
             </div>
           </div>
-        </template>
-				<br>
-				<button class="btn btn-danger btn-lg" id="joke">Verify</button>
-			</div>
-		</div>
+          <template v-for="(arr, idx1) in matrix">
+            <div class='row row-centered'>
+              <div 
+                v-for="(_, idx2) in arr"
+                class="col-xs-2 col-centered f"
+                :style="{ 'background-image': 'url(' + cellImg(idx1, idx2) + ')' }"
+                :class="{ sel: matrix[idx1][idx2] }"
+                @click="toggle(idx1, idx2)"
+              >
+              </div>
+            </div>
+          </template>
+          <br>
+          <button class="btn btn-danger btn-lg" :disabled="lineCount < win">Verify</button>
+        </div>
+      </div>
 
-		<div id="footer">
-			<div class="container text-center">
-				Designed by <a href="https://aji.tw">阿吉</a> 
-			</div>
-		</div>
+      <div id="footer">
+        <div class="container text-center">
+          Designed by <a href="https://aji.tw">阿吉</a> 
+        </div>
+      </div>
+
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 		<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
