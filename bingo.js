@@ -1,52 +1,10 @@
-// http://stackoverflow.com/a/881147/1105489
-String.prototype.count=function(s1) { 
-    return (this.length - this.replace(new RegExp(s1,"g"), '').length) / s1.length;
-}
-
-rows = ['a', 'b', 'c', 'd', 'e']
-cols = ['1', '2', '3', '4', '5']
-d1 = rows.map(function (e, i) {
-	return [rows[i]+cols[i]];
-});
-cols.reverse()
-d2 = rows.map(function (e, i) {
-	return [rows[i]+cols[i]];
-});
-
-function cal() {
-	var flags = '',
-		lines = 0;
-	$('.sel').each(function() {
-		flags += $(this).attr('id');
-	});
-	$.each([rows, cols], function(i, a) {
-		$.each(a, function(ii, f) {
-			if (flags.count(f) == 5) {
-				lines += 1;
-			}
-		})
-	})
-	$.each([d1, d2], function(i, e) {
-		dl = 0;
-		$.each(e, function(ii, c) {
-			if (flags.indexOf(c) == -1) {
-				dl += -1
-			}
-		})
-		if (dl == 0) {
-			lines += 1
-		}
-	})
-	$('#lines').text(lines);
-}
-
-$(function () {
-	$('body').on('touchstart click', '.f', function(e) {
-		e.preventDefault();
-		$(this).toggleClass('sel');
-		cal();
-	});
-})
+// generate nxn matrix
+// https://stackoverflow.com/a/39242362/1105489
+function genMatrix(n) {
+  return Array.from({
+    length: n
+  }, () => new Array(n).fill(0));
+};
 
 function getRandom(arr, n) {
   // How to get a number of random elements from an array?
@@ -67,9 +25,31 @@ function getRandom(arr, n) {
 var app = new Vue({
   el: '.cont',
   data: {
-    prefixes: ['a', 'b', 'c', 'd', 'e'],
-    numbers: [1, 2, 3, 4, 5],
-    sids: getRandom(Object.keys(hsdic), 25),
+    matrix: genMatrix(5),
+    sids: getRandom(Object.keys(hsdic), 5 * 5),
+  },
+  computed: {
+    lineCount: function() {
+      const sums = Array(5 * 2 + 2).fill(0);
+      for (let r=0; r < 5; r++) {
+        for (let c=0; c < 5; c++) {
+          let val = this.matrix[r][c];
+          sums[r] += val;
+          sums[5 + c] += val;
+        }
+        // diagonal
+        sums[5 * 2 + 0] += this.matrix[r][r];
+        sums[5 * 2 + 1] += this.matrix[r][5 - r - 1]
+      }
+
+      let cnt = 0;
+      for (let sum of sums) {
+        if (sum == 5) {
+          cnt += 1;
+        }
+      }
+      return cnt;
+    }
   },
   methods: {
     cellText: function(idx1, idx2) {
@@ -77,6 +57,9 @@ var app = new Vue({
     },
     cellImg: function(idx1, idx2) {
       return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * 5) + idx2]]
+    },
+    toggle: function(idx1, idx2) {
+      Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
     },
   }
 })

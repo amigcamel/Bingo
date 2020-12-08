@@ -17,16 +17,17 @@
 			<div class="text-center">
 				<div class='row'>
 					<div class="col-xs-offset-3 col-xs-6">
-						<p class="alert">連線數： <span id="lines">0</span></p>
+            <p class="alert">連線數： {{ lineCount }}</p>
 					</div>
 				</div>
-        <template v-for="(prefix, idx1) in prefixes">
+        <template v-for="(arr, idx1) in matrix">
           <div class='row row-centered'>
             <div 
-              v-for="(number, idx2) in numbers"
+              v-for="(_, idx2) in arr"
               class="col-xs-2 col-centered f"
-              :id="prefix + number"
               :style="{ 'background-image': 'url(' + cellImg(idx1, idx2) + ')' }"
+              :class="{ sel: matrix[idx1][idx2] }"
+              @click="toggle(idx1, idx2)"
             >
             </div>
           </div>
