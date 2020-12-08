@@ -27,10 +27,14 @@
                 v-for="(_, idx2) in arr"
                 class="col-xs-2 f"
                 :style="{ 'background-image': 'url(' + cellImg(idx1, idx2) + ')' }"
-                :class="{ sel: matrix[idx1][idx2] }"
                 @click="toggle(idx1, idx2)"
               >
-              {{ cellText(idx1, idx2) }}
+                <div
+                  class="name"
+                  :class="{xycenter: matrix[idx1][idx2]}"
+                >
+                {{ cellText(idx1, idx2) }}
+                </div>
               </div>
             </div>
           </template>

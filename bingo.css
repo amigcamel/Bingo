@@ -17,17 +17,34 @@ p {
 }
 
 .f {
-	background: #FFF380;
-  background-size: cover;
-	border: 2px solid white;
-	width: 20%;
-	height: 0;
-	padding-bottom: 20%;
-	cursor: pointer;
+    background-size: cover;
+    border: 2px solid white;
+    width: 20%;
+    height: 0;
+    padding-bottom: 20%;
+    cursor: pointer;
 }
 
-.sel {
-	background: #808CFF !important;
+.name {
+    position: absolute;
+    background: white;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+.xycenter {
+    background: #808cff;
+    position: absolute;
+    font-size: 40px;
+    color: #FFF380;
+    word-spacing: 9999px; /** force line break **/
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center; /** Y-axis align **/
+    justify-content: center; /** X-axis align **/
 }
 
 /*http://www.minimit.com/articles/solutions-tutorials/bootstrap-3-responsive-centered-columns*/
