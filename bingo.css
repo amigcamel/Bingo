@@ -52,13 +52,6 @@ p {
     text-align: center;
 }
 
-.col-centered {
-    text-align: center;
-    display: inline-block;
-    float: none;
-    margin-right: -4px;
-}
-
 .jumbotron {
 	/*color: #FEFCFF;*/
 	background: rgba( 232, 173, 170, 0.7) !important;
@@ -87,23 +80,4 @@ p {
     margin-top: 50px;
     padding-top: 20px;
     padding-bottom: 20px;
-}
-
-@media all and (min-width: 960px) {
-    .col-centered {
-        font-size: 100px;
-    }
-}
- 
-@media all and (max-width: 959px) and (min-width: 600px) {
-    .col-centered {
-        font-size: 50px;
-    }
-}
- 
-@media all and (max-width: 599px) and (min-width: 320px) {
-    .col-centered {
-        font-size: 25px;
-    }
- 
 }
