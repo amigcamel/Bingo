@@ -48,7 +48,7 @@ var app = new Vue({
     win: 5,
     matrix: genMatrix(Vue.prototype.$gridnum),
     sids: getSids(),
-    isStarted: localStorage.getItem("isStarted"),
+    isStarted: localStorage.getItem("isStarted") || false,
   },
   computed: {
     lineCount: function() {
@@ -92,13 +92,45 @@ var app = new Vue({
       return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].uri
     },
     toggle: function(idx1, idx2) {
-      Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
+      if (this.isStarted) {
+        Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
+      }
     },
     startGame: function() {
-      if (confirm("If you click OK, you cannot shuffle anymore. Are you sure?")) {
-        localStorage.setItem("isStarted", 1);
-        this.isStarted = true;
-      }
-    }
+      Swal.fire({
+        title: "Bingo",
+        text: "Start playing?",
+        showCancelButton: true
+      }).then((result) => {
+        if (result.value) {
+          console.log(result.value)
+          localStorage.setItem("isStarted", 1);
+          this.isStarted = true;
+        }
+      });
+    },
+    verify: function() {
+      Swal.fire({
+        title: "Verify Result",
+        text: "If you want to verify your result, please click OK.",
+        showCancelButton: true,
+      }).then((result) => {
+        if (result.value) {
+          axios
+            .post("http://localhost:8000/api", {  // TODO
+              sids: this.sids,
+              matrix: this.matrix,
+              token: this.token || "fake-token",  // TODO
+            })
+            .then((response) => {
+              console.log(response);
+              Swal.fire(response.data.status);
+            })
+            .catch((error) => {
+              Swal.fire(`Can't connect to the server`);
+            })
+        }
+      });
+    },
   }
 })
