@@ -39,6 +39,16 @@ function getSids() {
   return sids;
 }
 
+function getMatrix() {
+  let matrix = localStorage.getItem("matrix");
+  if (matrix) {
+    matrix = JSON.parse(matrix);
+  } else {
+    matrix = genMatrix(Vue.prototype.$gridnum);
+  }
+  return matrix
+}
+
 function collectTargetSids(sids, matrix) {
   let cnt = 0;
   const res = [];
@@ -58,8 +68,8 @@ Vue.prototype.$gridnum = 5;
 var app = new Vue({
   el: '#app',
   data: {
-    win: 5,
-    matrix: genMatrix(Vue.prototype.$gridnum),
+    win: 3,
+    matrix: getMatrix(),
     sids: getSids(),
     isStarted: localStorage.getItem("isStarted") || false,
   },
@@ -107,6 +117,7 @@ var app = new Vue({
     toggle: function(idx1, idx2) {
       if (this.isStarted) {
         Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
+        localStorage.setItem("matrix", JSON.stringify(this.matrix));
       }
     },
     startGame: function() {
@@ -133,6 +144,7 @@ var app = new Vue({
             .post("http://localhost:8000/api", {  // TODO
               sids: collectTargetSids(this.sids, this.matrix),
               token: this.token || "fake-token",  // TODO
+              clientSid: new URLSearchParams(window.location.search).get('clientSid') // TODO
             })
             .then((response) => {
               let title, text;
