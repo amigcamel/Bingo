@@ -39,6 +39,19 @@ function getSids() {
   return sids;
 }
 
+function collectTargetSids(sids, matrix) {
+  let cnt = 0;
+  const res = [];
+  for (let arr of matrix) {
+    for (let int of arr) {
+      if (int === 1) {
+        res.push(sids[cnt]);
+      }
+      cnt += 1;
+    }
+  }
+  return res;
+}
 
 Vue.prototype.$gridnum = 5;
 
@@ -118,13 +131,19 @@ var app = new Vue({
         if (result.value) {
           axios
             .post("http://localhost:8000/api", {  // TODO
-              sids: this.sids,
-              matrix: this.matrix,
+              sids: collectTargetSids(this.sids, this.matrix),
               token: this.token || "fake-token",  // TODO
             })
             .then((response) => {
-              console.log(response);
-              Swal.fire(response.data.status);
+              let title, text;
+              if (response.data.status) {
+                title = "Congrats!";
+                text = "You just won the prize!";
+              } else {
+                title = "Wait a minute!";
+                text = "You result dosen't look right, please check again!";
+              }
+              Swal.fire({title: title, text: text});
             })
             .catch((error) => {
               Swal.fire(`Can't connect to the server`);
