@@ -6,16 +6,16 @@ function genMatrix(n) {
   return Array.from({
     length: n
   }, () => new Array(n).fill(0));
-};
+}
 
 function getRandom(arr, n) {
   // How to get a number of random elements from an array?
   // https://stackoverflow.com/a/19270021/1105489
   var result = new Array(n),
-     len = arr.length,
-     taken = new Array(len);
+    len = arr.length,
+    taken = new Array(len);
   if (n > len)
-    throw new RangeError("getRandom: more elements taken than available");
+    throw new RangeError('getRandom: more elements taken than available');
   while (n--) {
     var x = Math.floor(Math.random() * len);
     result[n] = arr[x in taken ? taken[x] : x];
@@ -26,15 +26,15 @@ function getRandom(arr, n) {
 
 function getRandomSids() {
   const sids = getRandom(Object.keys(hsdic), Math.pow(Vue.prototype.$gridnum, 2));
-  localStorage.setItem("sids", sids);
+  localStorage.setItem('sids', sids);
   return sids;
 }
 
 
 function getSids() {
-  let sids = localStorage.getItem("sids");
+  let sids = localStorage.getItem('sids');
   if (sids) {
-    sids = sids.split(",");
+    sids = sids.split(',');
   } else {
     sids = getRandomSids();
   }
@@ -42,13 +42,13 @@ function getSids() {
 }
 
 function getMatrix() {
-  let matrix = localStorage.getItem("matrix");
+  let matrix = localStorage.getItem('matrix');
   if (matrix) {
     matrix = JSON.parse(matrix);
   } else {
     matrix = genMatrix(Vue.prototype.$gridnum);
   }
-  return matrix
+  return matrix;
 }
 
 function collectTargetSids(sids, matrix) {
@@ -73,30 +73,30 @@ var app = new Vue({
     win: 3,
     matrix: getMatrix(),
     sids: getSids(),
-    isStarted: localStorage.getItem("isStarted") || false,
+    isStarted: localStorage.getItem('isStarted') || false,
     token: new URLSearchParams(window.location.search).get('token'),
     tokenIsValid: null,
   },
   mounted: function() {
     if (!this.token) {
       this.tokenIsValid = false;
-      alert('Invalid token!')
+      alert('Invalid token!');
       return;
     }
     axios
       .get(`${API_HOST}/token/${this.token}`)
       .then((response) => {
-        console.log(response)
+        console.log(response);
         if (response.data.status) {
           this.tokenIsValid = true;   
         } else {
-          alert('Invalid token!')
+          alert('Invalid token!');
           this.tokenIsValid = false;   
         }
       })
       .catch((error) => {
         Swal.fire({title: 'Critical', text: error});
-      })
+      });
   },
   computed: {
     lineCount: function() {
@@ -109,7 +109,7 @@ var app = new Vue({
         }
         // diagonal
         sums[this.$gridnum * 2 + 0] += this.matrix[r][r];
-        sums[this.$gridnum * 2 + 1] += this.matrix[r][this.$gridnum - r - 1]
+        sums[this.$gridnum * 2 + 1] += this.matrix[r][this.$gridnum - r - 1];
       }
 
       let cnt = 0;
@@ -123,9 +123,9 @@ var app = new Vue({
     isMobile: function() {
       // https://stackoverflow.com/a/50342804/1105489
       if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     },
   },
@@ -134,34 +134,34 @@ var app = new Vue({
       this.sids = getRandomSids();
     },
     cellText: function(idx1, idx2) {
-      return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name
+      return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name;
     },
     cellImg: function(idx1, idx2) {
-      return "https://lh3.googleusercontent.com/a-/" + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].uri
+      return 'https://lh3.googleusercontent.com/a-/' + hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].uri;
     },
     toggle: function(idx1, idx2) {
       if (this.isStarted) {
         Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
-        localStorage.setItem("matrix", JSON.stringify(this.matrix));
+        localStorage.setItem('matrix', JSON.stringify(this.matrix));
       }
     },
     startGame: function() {
       Swal.fire({
-        title: "Bingo",
-        text: "Start playing?",
+        title: 'Bingo',
+        text: 'Start playing?',
         showCancelButton: true
       }).then((result) => {
         if (result.value) {
-          console.log(result.value)
-          localStorage.setItem("isStarted", 1);
+          console.log(result.value);
+          localStorage.setItem('isStarted', 1);
           this.isStarted = true;
         }
       });
     },
     verify: function() {
       Swal.fire({
-        title: "Verify Result",
-        text: "If you want to verify your result, please click OK.",
+        title: 'Verify Result',
+        text: 'If you want to verify your result, please click OK.',
         showCancelButton: true,
       }).then((result) => {
         if (result.value) {
@@ -173,19 +173,19 @@ var app = new Vue({
             .then((response) => {
               let title, text;
               if (response.data.status) {
-                title = "Congrats!";
-                text = "You just won the prize!";
+                title = 'Congrats!';
+                text = 'You just won the prize!';
               } else {
-                title = "Wait a minute!";
-                text = "You result dosen't look right, please check again!";
+                title = 'Wait a minute!';
+                text = 'You result dosen\'t look right, please check again!';
               }
               Swal.fire({title: title, text: text});
             })
             .catch((error) => {
-              Swal.fire(`Can't connect to the server`);
-            })
+              Swal.fire('Can\'t connect to the server');
+            });
         }
       });
     },
   }
-})
+});
