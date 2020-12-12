@@ -1,3 +1,5 @@
+const API_HOST = 'http://127.0.0.1:8000';
+
 // generate nxn matrix
 // https://stackoverflow.com/a/39242362/1105489
 function genMatrix(n) {
@@ -72,6 +74,29 @@ var app = new Vue({
     matrix: getMatrix(),
     sids: getSids(),
     isStarted: localStorage.getItem("isStarted") || false,
+    token: new URLSearchParams(window.location.search).get('token'),
+    tokenIsValid: null,
+  },
+  mounted: function() {
+    if (!this.token) {
+      this.tokenIsValid = false;
+      alert('Invalid token!')
+      return;
+    }
+    axios
+      .get(`${API_HOST}/token/${this.token}`)
+      .then((response) => {
+        console.log(response)
+        if (response.data.status) {
+          this.tokenIsValid = true;   
+        } else {
+          alert('Invalid token!')
+          this.tokenIsValid = false;   
+        }
+      })
+      .catch((error) => {
+        Swal.fire({title: 'Critical', text: error});
+      })
   },
   computed: {
     lineCount: function() {
@@ -141,10 +166,9 @@ var app = new Vue({
       }).then((result) => {
         if (result.value) {
           axios
-            .post("http://localhost:8000/api", {  // TODO
+            .post(`${API_HOST}/api`, {  // TODO
               sids: collectTargetSids(this.sids, this.matrix),
-              token: this.token || "fake-token",  // TODO
-              clientSid: new URLSearchParams(window.location.search).get('clientSid') // TODO
+              token: this.token,
             })
             .then((response) => {
               let title, text;
