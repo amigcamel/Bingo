@@ -32,6 +32,10 @@ p {
     width: 100%;
 }
 
+.name2 {
+  font-size: 30px;
+}
+
 .xycenter {
     background: #808cff;
     position: absolute;
