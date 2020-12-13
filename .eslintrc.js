@@ -21,5 +21,6 @@ module.exports = {
   rules: {
     'no-plusplus': 'off',
     'no-restricted-syntax': 'off',
+    'import/no-named-as-default': 0,
   },
 };
