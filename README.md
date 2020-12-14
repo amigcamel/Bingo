@@ -1,7 +1,24 @@
 # Bingo  
 
+A Bingo game written in Vue.
+
+
 ---
 
-賓果遊戲
+## Build
 
-[Demo page](https://amigcamel.github.io/Bingo/)
+```sh
+npm build
+```
+
+## Install
+
+```sh
+npm install
+```
+
+## Run dev server
+
+```sh
+npm run serve
+```
