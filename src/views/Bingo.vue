@@ -64,8 +64,6 @@ import Swal from 'sweetalert2';
 import Vue from 'vue';
 import hsdic from '../data';
 
-const API_HOST = 'http://127.0.0.1:8000';
-
 Vue.prototype.$gridnum = 5;
 
 // generate nxn matrix
@@ -149,7 +147,7 @@ export default {
       return;
     }
     axios
-      .get(`${API_HOST}/token/${this.token}`)
+      .get(`${this.$API_HOST}/token/${this.token}`)
       .then((response) => {
         console.log(response);
         if (response.data.status) {
@@ -230,7 +228,7 @@ export default {
       }).then((result) => {
         if (result.value) {
           axios
-            .post(`${API_HOST}/api`, { // TODO
+            .post(`${this.$API_HOST}/api`, { // TODO
               sids: collectTargetSids(this.sids, this.matrix),
               token: this.token,
             })

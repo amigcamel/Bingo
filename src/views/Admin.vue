@@ -98,8 +98,6 @@ import Swal from 'sweetalert2';
 import HSDIC from '../data';
 import beep from '../assets/beep.mp3';
 
-const API_HOST = 'http://127.0.0.1:8000';
-
 function getRandom(arr, num) {
   // How to get a number of random elements from an array?
   // https://stackoverflow.com/a/19270021/1105489
@@ -143,7 +141,7 @@ export default {
     getWinners() {
       setInterval(() => {
         axios
-          .get(`${API_HOST}/winners`)
+          .get(`${this.$API_HOST}/winners`)
           .then((response) => {
             if (response.data.winners) {
               this.winners = response.data.winners.slice().reverse();
@@ -183,7 +181,7 @@ export default {
       this.target = this.composeTarget(sid);
       this.targetSids.unshift(sid);
       axios
-        .put(`${API_HOST}/targetsids`, {
+        .put(`${this.$API_HOST}/targetsids`, {
           sid,
         })
         .then((response) => {
@@ -228,7 +226,7 @@ export default {
           this.target = {};
           this.targetSids = [];
           axios
-            .delete(`${API_HOST}/targetsids`)
+            .delete(`${this.$API_HOST}/targetsids`)
             .then((response) => {
               console.log(response);
             })
