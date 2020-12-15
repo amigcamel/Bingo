@@ -2,11 +2,20 @@
   <div>
     <div id="overlay" v-show="!tokenIsValid"></div>
     <div class="jumbotron text-center">
-      <h1>大頭賓果</h1>
-      <h2>遊戲規則</h2>
-      <p>系統會從所有員工大頭照中隨機選出<span v-text="Math.pow(this.$gridnum, 2)"></span>張<br>
-         凡連線數達<span class="ball">{{ win }}</span>條者<br>即可獲得「現金大禮」
-      </p>
+      <h1>FFN BINGO</h1>
+      <h2>Rules</h2>
+      <div style="line-height: 5px;padding-top: 1em;">
+        <p>
+          <u><span v-text="Math.pow(this.$gridnum, 2)"></span></u>
+          headshots will be randomly selected.
+        </p>
+        <p>
+          Mark off all numbers on at least <span class="ball">{{ win }}</span> lines.
+        </p>
+        <p>
+          Wrong picutre doesn't count
+        </p>
+      </div>
     </div>
     <div class="cont" :class="{container: !isMobile}">
       <div class="text-center">
@@ -17,17 +26,17 @@
         </div>
         <div class="row" style="padding-bottom: 40px;">
           <button
-            class="btn btn-info btn-lg"
+            class="btn btn-info"
             @click="shuffleSids()"
             :disabled="isStarted"
             >Shuffle</button>
           <button
-            class="btn btn-warning btn-lg"
+            class="btn btn-warning"
             @click="startGame()"
             :disabled="isStarted"
             >Start</button>
           <button
-            class="btn btn-danger btn-lg"
+            class="btn btn-danger"
             :disabled="lineCount < win"
             @click="verify()"
             >Verify</button>
