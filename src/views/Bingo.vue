@@ -161,7 +161,7 @@ export default {
       .get(`${this.$API_HOST}/token/${this.token}`)
       .then((response) => {
         console.log(response);
-        if (response.data.status) {
+        if (response.data.sid) {
           this.tokenIsValid = true;
         } else {
           Swal.fire({ title: 'Error', text: 'Invalid token!' })
