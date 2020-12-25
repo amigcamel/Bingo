@@ -147,12 +147,14 @@ export default {
     sids: getSids(),
     isStarted: localStorage.getItem('isStarted') || false,
     token: new URLSearchParams(window.location.search).get('token'),
-    tokenIsValid: null,
+    tokenIsValid: true,
   }),
   mounted: function _() {
     if (!this.token) {
-      this.tokenIsValid = false;
-      alert('Invalid token!');
+      Swal.fire({ title: 'Error', text: 'Empty token' })
+        .then(() => {
+          this.tokenIsValid = false;
+        });
       return;
     }
     axios
@@ -162,8 +164,10 @@ export default {
         if (response.data.status) {
           this.tokenIsValid = true;
         } else {
-          alert('Invalid token!');
-          this.tokenIsValid = false;
+          Swal.fire({ title: 'Error', text: 'Invalid token!' })
+            .then(() => {
+              this.tokenIsValid = false;
+            });
         }
       })
       .catch((error) => {

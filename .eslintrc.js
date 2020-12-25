@@ -21,6 +21,7 @@ module.exports = {
     'vue',
   ],
   rules: {
+    'no-console': 'off',
     'no-plusplus': 'off',
     'no-restricted-syntax': 'off',
     'import/no-named-as-default': 0,
