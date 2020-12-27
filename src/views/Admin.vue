@@ -125,8 +125,8 @@ export default {
     sids: Object.keys(HSDIC),
     winners: [],
     targetSids: [],
-    defaultCountdown: 10,
-    countdown: 10,
+    defaultCountdown: 8,
+    countdown: 8,
     isCounting: false,
     isPause: false,
     target: {},
@@ -182,8 +182,6 @@ export default {
       console.log('on close');
     },
     toTST(unixTime) {
-      console.log(unixTime);
-      console.log(moment.unix(unixTime));
       return moment.unix(unixTime).format('HH:mm:ss');
     },
     getWinners() {
