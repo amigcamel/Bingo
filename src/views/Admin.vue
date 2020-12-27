@@ -82,7 +82,7 @@
                  {{ item[0] }}
                </td>
                <td>{{ toTST(item[1]) }}</td>
-               <td>$1,000 NTD</td>
+               <td>{{ prizes[idx] | prize }}</td>
              </tr>
            </tbody>
          </table>
@@ -97,6 +97,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import moment from 'moment';
 import HSDIC from '../data';
+import PRIZES from '../prize';
 import beep from '../assets/beep.mp3';
 
 function getRandom(arr, num) {
@@ -119,6 +120,7 @@ export default {
   name: 'Admin',
   data: () => ({
     hsdic: HSDIC,
+    prizes: PRIZES,
     sids: Object.keys(HSDIC),
     winners: [],
     targetSids: [],
@@ -144,6 +146,14 @@ export default {
   },
   destroyed() {
     this.ws.close();
+  },
+  filters: {
+    prize: (value) => {
+      if (value === undefined) {
+        return 'Too late😢😢😢';
+      }
+      return `$${value.toLocaleString()} NTD`;
+    },
   },
   methods: {
     initWS() {
