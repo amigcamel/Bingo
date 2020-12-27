@@ -130,6 +130,7 @@ export default {
     timeouts: [],
     beepSound: new Audio(beep),
     // applauseSound: new Audio('./applause.mp3'),
+    ws: null,
   }),
   mounted: function _() {
     // check winners
@@ -138,27 +139,55 @@ export default {
     // randomly display images
     this.randomDisplay();
   },
+  created() {
+    this.initWS();
+  },
+  destroyed() {
+    this.ws.close();
+  },
   methods: {
+    initWS() {
+      const uri = `${this.$WS_ORIGIN}/state`;
+      this.ws = new WebSocket(uri);
+      this.ws.onmessage = this.wsOnmessage;
+      this.ws.onopen = this.wsOnopen;
+      this.ws.onerror = this.wsOnerror;
+      this.ws.onclose = this.wsClose;
+    },
+    wsOnmessage(event) {
+      console.log('on message');
+      if (JSON.parse(event.data).update === 1) {
+        this.getWinners();
+        this.applauseSound.play();
+      }
+    },
+    wsOnopen() {
+      console.log('on open');
+    },
+    wsOnerror() {
+      console.log('on error');
+    },
+    wsClose() {
+      console.log('on close');
+    },
     toTST(unixTime) {
       console.log(unixTime);
       console.log(moment.unix(unixTime));
       return moment.unix(unixTime).format('HH:mm:ss');
     },
     getWinners() {
-      setInterval(() => {
-        axios
-          .get(`${this.$API_HOST}/winners`)
-          .then((response) => {
-            if (response.data.winners) {
-              this.winners = response.data.winners.slice().reverse();
-            } else {
-              this.winners = [];
-            }
-          })
-          .catch((error) => {
-            Swal.fire({ title: 'Critical', text: error });
-          });
-      }, 1000);
+      axios
+        .get(`${this.$API_HOST}/winners`)
+        .then((response) => {
+          if (response.data.winners) {
+            this.winners = response.data.winners.slice().reverse();
+          } else {
+            this.winners = [];
+          }
+        })
+        .catch((error) => {
+          Swal.fire({ title: 'Critical', text: error });
+        });
     },
     getRandomSid() {
       const sid = getRandom(this.sids, 1)[0];
@@ -274,10 +303,6 @@ export default {
         }, 1000);
       }
     },
-    // winners: function() {
-    //   console.log(this.winners)
-    //   this.applauseSound.play();
-    // }
   },
 };
 </script>
