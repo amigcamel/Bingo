@@ -81,7 +81,7 @@
                  <img :src="'https://lh3.googleusercontent.com/a-/' + hsdic[item[0]].uri" width="30px" style="border-radius:50%">
                  {{ item[0] }}
                </td>
-               <td>{{ new Date(item[1] * 1000).toJSON().slice(0, 19).replace("T", " ") }}</td>
+               <td>{{ toTST(item[1]) }}</td>
                <td>$1,000 NTD</td>
              </tr>
            </tbody>
@@ -95,6 +95,7 @@
 <script>
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import moment from 'moment';
 import HSDIC from '../data';
 import beep from '../assets/beep.mp3';
 
@@ -138,6 +139,11 @@ export default {
     this.randomDisplay();
   },
   methods: {
+    toTST(unixTime) {
+      console.log(unixTime);
+      console.log(moment.unix(unixTime));
+      return moment.unix(unixTime).format('HH:mm:ss');
+    },
     getWinners() {
       setInterval(() => {
         axios
