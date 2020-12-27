@@ -99,6 +99,7 @@ import moment from 'moment';
 import HSDIC from '../data';
 import PRIZES from '../prize';
 import beep from '../assets/beep.mp3';
+import applause from '../assets/applause.mp3';
 
 function getRandom(arr, num) {
   // How to get a number of random elements from an array?
@@ -131,8 +132,8 @@ export default {
     target: {},
     timeouts: [],
     beepSound: new Audio(beep),
-    // applauseSound: new Audio('./applause.mp3'),
     ws: null,
+    applauseSound: new Audio(applause),
   }),
   mounted: function _() {
     // check winners
