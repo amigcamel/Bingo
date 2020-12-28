@@ -28,13 +28,7 @@
           <button
             class="btn btn-info"
             @click="shuffleSids()"
-            :disabled="isStarted"
             >Shuffle</button>
-          <button
-            class="btn btn-warning"
-            @click="startGame()"
-            :disabled="isStarted"
-            >Start</button>
           <button
             class="btn btn-danger"
             :disabled="lineCount < win"
@@ -49,7 +43,7 @@
               class="col-xs-2 f"
               :style="{
                 'background-image': 'url(' + cellImg(idx1, idx2) + ')',
-                cursor: (isStarted ? 'pointer' : 'default')
+                cursor: 'pointer',
               }"
               @click="toggle(idx1, idx2)"
             >
@@ -145,7 +139,6 @@ export default {
     win: 3,
     matrix: getMatrix(),
     sids: getSids(),
-    isStarted: localStorage.getItem('isStarted') || false,
     token: new URLSearchParams(window.location.search).get('token'),
     tokenIsValid: true,
   }),
@@ -206,7 +199,9 @@ export default {
   },
   methods: {
     shuffleSids() {
+      localStorage.removeItem('matrix');
       this.sids = getRandomSids();
+      this.matrix = getMatrix();
     },
     cellText(idx1, idx2) {
       return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name;
@@ -215,23 +210,8 @@ export default {
       return `https://lh3.googleusercontent.com/a-/${hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].uri}`;
     },
     toggle(idx1, idx2) {
-      if (this.isStarted) {
-        Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
-        localStorage.setItem('matrix', JSON.stringify(this.matrix));
-      }
-    },
-    startGame() {
-      Swal.fire({
-        title: 'Bingo',
-        text: 'Start playing?',
-        showCancelButton: true,
-      }).then((result) => {
-        if (result.value) {
-          console.log(result.value);
-          localStorage.setItem('isStarted', 1);
-          this.isStarted = true;
-        }
-      });
+      Vue.set(this.matrix[idx1], idx2, 1 - this.matrix[idx1][idx2]);
+      localStorage.setItem('matrix', JSON.stringify(this.matrix));
     },
     verify() {
       Swal.fire({
