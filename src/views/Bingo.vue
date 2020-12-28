@@ -237,20 +237,19 @@ export default {
           token: this.token,
         })
         .then((response) => {
+          let icon;
           let title;
           let text;
           if (response.data.status) {
-            title = 'Congrats!';
+            icon = 'success';
+            title = 'Congratulations!';
             text = 'You just won the prize!';
           } else {
+            icon = 'error';
             title = 'Wait a minute!';
             text = 'You result dosen\'t look right, please check again!';
           }
-          Swal.fire({
-            icon: 'error',
-            title,
-            text,
-          });
+          Swal.fire({ icon, title, text });
         })
         .catch((error) => {
           Swal.fire({ title: 'Critical', text: error });
