@@ -26,14 +26,9 @@
         </div>
         <div class="row" style="padding-bottom: 40px;">
           <button
-            class="btn btn-info"
-            @click="shuffleSids()"
-            >Shuffle</button>
-          <button
             class="btn btn-danger"
-            :disabled="lineCount < win"
             @click="verify()"
-            >Verify</button>
+            >Claim Your Prize!</button>
         </div>
         <template v-for="(arr, idx1) in matrix">
           <div class='row row-centered' :key="'idx1'+idx1">
@@ -56,6 +51,12 @@
             </div>
           </div>
         </template>
+        <div class="row" style="padding-top: 40px;">
+          <button
+            class="btn btn-info"
+            @click="shuffleSids()"
+            >Shuffle</button>
+        </div>
       </div>
     </div>
   </div>
@@ -199,9 +200,17 @@ export default {
   },
   methods: {
     shuffleSids() {
-      localStorage.removeItem('matrix');
-      this.sids = getRandomSids();
-      this.matrix = getMatrix();
+      Swal.fire({
+        icon: 'warning',
+        text: 'Are you sure you want to shuffle photos?',
+        showCancelButton: true,
+      }).then((result) => {
+        if (result.value) {
+          localStorage.removeItem('matrix');
+          this.sids = getRandomSids();
+          this.matrix = getMatrix();
+        }
+      });
     },
     cellText(idx1, idx2) {
       return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name;
@@ -214,34 +223,38 @@ export default {
       localStorage.setItem('matrix', JSON.stringify(this.matrix));
     },
     verify() {
-      Swal.fire({
-        title: 'Verify Result',
-        text: 'If you want to verify your result, please click OK.',
-        showCancelButton: true,
-      }).then((result) => {
-        if (result.value) {
-          axios
-            .post(`${this.$API_HOST}/api`, { // TODO
-              sids: collectTargetSids(this.sids, this.matrix),
-              token: this.token,
-            })
-            .then((response) => {
-              let title; let
-                text;
-              if (response.data.status) {
-                title = 'Congrats!';
-                text = 'You just won the prize!';
-              } else {
-                title = 'Wait a minute!';
-                text = 'You result dosen\'t look right, please check again!';
-              }
-              Swal.fire({ title, text });
-            })
-            .catch((error) => {
-              Swal.fire({ title: 'Critical', text: error });
-            });
-        }
-      });
+      if (this.lineCount < this.win) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Not yet',
+          text: `Please mark off numbers on at least "${this.win}" lines`,
+        });
+        return;
+      }
+      axios
+        .post(`${this.$API_HOST}/api`, { // TODO
+          sids: collectTargetSids(this.sids, this.matrix),
+          token: this.token,
+        })
+        .then((response) => {
+          let title;
+          let text;
+          if (response.data.status) {
+            title = 'Congrats!';
+            text = 'You just won the prize!';
+          } else {
+            title = 'Wait a minute!';
+            text = 'You result dosen\'t look right, please check again!';
+          }
+          Swal.fire({
+            icon: 'error',
+            title,
+            text,
+          });
+        })
+        .catch((error) => {
+          Swal.fire({ title: 'Critical', text: error });
+        });
     },
   },
 };
