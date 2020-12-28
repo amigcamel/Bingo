@@ -13,7 +13,7 @@
          <div class="row">
            <div
              class="col-lg-2 col-md-2 text-center"
-             v-for="(sid, index) in targetSids.slice(1)"
+             v-for="(sid, index) in targetSids.slice(1, 13)"
              :key="index">
              <img :src="'https://lh3.googleusercontent.com/a-/' + hsdic[sid].uri + '=s96'" height="96">
              <div>{{ hsdic[sid].name.split(" ")[0] }}</div>
