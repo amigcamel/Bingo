@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="overlay" v-show="!tokenIsValid"></div>
+    <overlay v-show="!tokenIsValid"></overlay>
     <div class="jumbotron text-center">
       <h1>FFN BINGO</h1>
       <h2>Rules</h2>
@@ -66,6 +66,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import Vue from 'vue';
+import overlay from './Overlay.vue';
 import hsdic from '../data';
 
 Vue.prototype.$gridnum = 5;
@@ -136,6 +137,9 @@ function collectTargetSids(sids, matrix) {
 
 export default {
   name: 'Bingo',
+  components: {
+    overlay,
+  },
   data: () => ({
     win: 3,
     matrix: getMatrix(),
