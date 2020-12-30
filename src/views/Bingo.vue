@@ -1,5 +1,6 @@
 <template>
   <div>
+    <countdown ref="countdownRef" v-show="countdownIsRunning"></countdown>
     <overlay v-show="!tokenIsValid"></overlay>
     <div class="jumbotron text-center">
       <h1>FFN BINGO</h1>
@@ -55,6 +56,7 @@
           <button
             class="btn btn-info"
             @click="shuffleSids()"
+            v-show="displayShuffleButton"
             >Shuffle</button>
         </div>
       </div>
@@ -67,6 +69,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Vue from 'vue';
 import overlay from './Overlay.vue';
+import countdown from './Countdown.vue';
 import hsdic from '../data';
 
 Vue.prototype.$gridnum = 5;
@@ -139,6 +142,7 @@ export default {
   name: 'Bingo',
   components: {
     overlay,
+    countdown,
   },
   data: () => ({
     win: 3,
@@ -146,6 +150,8 @@ export default {
     sids: getSids(),
     token: new URLSearchParams(window.location.search).get('token'),
     tokenIsValid: true,
+    countdownIsRunning: null,
+    displayShuffleButton: true,
   }),
   mounted: function _() {
     if (!this.token) {
@@ -161,6 +167,7 @@ export default {
         console.log(response);
         if (response.data.sid) {
           this.tokenIsValid = true;
+          this.initWS();
         } else {
           Swal.fire({ title: 'Error', text: 'Invalid token!' })
             .then(() => {
@@ -203,6 +210,34 @@ export default {
     },
   },
   methods: {
+    initWS() {
+      const uri = `${this.$WS_ORIGIN}/state`;
+      this.ws = new WebSocket(uri);
+      this.ws.onmessage = this.wsOnmessage;
+      this.ws.onopen = this.wsOnopen;
+      this.ws.onerror = this.wsOnerror;
+      this.ws.onclose = this.wsClose;
+    },
+    wsOnmessage(event) {
+      console.log('on message');
+      if (JSON.parse(event.data).countdown === 1) {
+        this.countdownIsRunning = true;
+        this.$refs.countdownRef.startCountdown();
+        setTimeout(() => {
+          this.countdownIsRunning = false;
+          this.displayShuffleButton = false;
+        }, this.$store.state.countdownDuration + 1500);
+      }
+    },
+    wsOnopen() {
+      console.log('on open');
+    },
+    wsOnerror() {
+      console.log('on error');
+    },
+    wsClose() {
+      console.log('on close');
+    },
     shuffleSids() {
       Swal.fire({
         icon: 'warning',

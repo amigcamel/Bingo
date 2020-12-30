@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div id="app" class="container" style="padding-top: 60px">
+    <countdown ref="countdownRef" v-show="countdownIsRunning"></countdown>
+    <div class="container" style="padding-top: 60px">
      <div class="row">
        <div class="col-lg-6 col-md-6">
          <div
@@ -13,16 +14,15 @@
          <div class="row">
            <div
              class="col-lg-2 col-md-2 text-center"
-             v-for="(sid, index) in targetSids.slice(1, 13)"
+             v-for="(sid, index) in displaySids.slice(1)"
              :key="index">
-             <img :src="'https://lh3.googleusercontent.com/a-/' + hsdic[sid].uri + '=s96'" height="96">
-             <div>{{ hsdic[sid].name.split(" ")[0] }}</div>
+             <img :src="getDisplayImg(sid)" height="96">
            </div>
          </div>
        </div>
        <div class="col-lg-6 col-md-6">
          <div class="jumbotron text-center">
-           <h1>00:{{ ('00' + countdown).slice(-2) }}</h1>
+           <h1>{{ countdown }}</h1>
          </div>
          <div class="row text-center">
            <div class="col-lg-6 col-md-6" v-show="!isCounting">
@@ -44,7 +44,7 @@
              <button
                class="btn btn-info"
                @click="start()"
-               :disabled="isCounting || isPause"
+               :disabled="isCounting || isPause || isEnd"
                >Start</button>
              <button
                class="btn btn-info"
@@ -60,11 +60,10 @@
              <button
                class="btn btn-danger"
                @click="reset()"
-               :disabled="!isCounting && !isPause"
                >Reset</button>
            </div>
          </div>
-         <h2>Ranks</h2>
+         <h2>Winners</h2>
          <table class="table">
            <thead>
              <tr>
@@ -75,14 +74,14 @@
              </tr>
            </thead>
            <tbody>
-             <tr v-for="(item, idx) in winners" :key="idx">
+             <tr v-for="(prize, idx) in prizes" :key="idx">
                <td>{{ idx+1 }}</td>
                <td>
-                 <img :src="'https://lh3.googleusercontent.com/a-/' + hsdic[item[0]].uri" width="30px" style="border-radius:50%">
-                 {{ item[0] }}
+                 <img :src="getWinnerImg(idx)" width="30px" style="border-radius:50%">
+                 {{ getWinnerName(idx) }}
                </td>
-               <td>{{ toTST(item[1]) }}</td>
-               <td>{{ prizes[idx] | prize }}</td>
+               <td>{{ getWinnerTime(idx) }}</td>
+               <td>{{ getWinnerPrize(idx) }}</td>
              </tr>
            </tbody>
          </table>
@@ -98,8 +97,33 @@ import Swal from 'sweetalert2';
 import moment from 'moment';
 import HSDIC from '../data';
 import PRIZES from '../prize';
-import beep from '../assets/beep.mp3';
 import applause from '../assets/applause.mp3';
+import ding from '../assets/ding.mp3';
+import restaurant from '../assets/restaurant.mp3';
+import bell from '../assets/bell.mp3';
+import countdown from './Countdown.vue';
+import unknown from '../assets/unknown.png';
+
+// A localStorage wrapper
+function LS(name) {
+  this.name = name;
+}
+LS.prototype.get = function _(defaultVal) {
+  const name = localStorage.getItem(this.name);
+  let res;
+  if (name) {
+    res = JSON.parse(name);
+  } else {
+    res = defaultVal;
+  }
+  return res;
+};
+LS.prototype.set = function _(val) {
+  localStorage.setItem(this.name, JSON.stringify(val));
+};
+LS.prototype.remove = function _() {
+  localStorage.removeItem(this.name);
+};
 
 function getRandom(arr, num) {
   // How to get a number of random elements from an array?
@@ -117,23 +141,35 @@ function getRandom(arr, num) {
   return result;
 }
 
+function genDefaultDisplaySids() {
+  return new Array((18 + 1)).fill(null);
+}
+
 export default {
   name: 'Admin',
+  components: {
+    countdown,
+  },
   data: () => ({
     hsdic: HSDIC,
     prizes: PRIZES,
     sids: Object.keys(HSDIC),
     winners: [],
     targetSids: [],
+    displaySids: genDefaultDisplaySids(),
     defaultCountdown: 8,
     countdown: 8,
-    isCounting: false,
-    isPause: false,
+    isCounting: new LS('isCounting').get(false),
+    isPause: new LS('isPause').get(false),
+    isEnd: new LS('isEnd').get(false),
     target: {},
     timeouts: [],
-    beepSound: new Audio(beep),
+    dingSound: new Audio(ding),
     ws: null,
     applauseSound: new Audio(applause),
+    restaurantSound: new Audio(restaurant),
+    bellSound: new Audio(bell),
+    countdownIsRunning: null,
   }),
   mounted: function _() {
     // check winners
@@ -141,20 +177,38 @@ export default {
 
     // randomly display images
     this.randomDisplay();
+
+    // sync targetSids and winners
+    axios
+      .get(`${this.$API_HOST}/targetsids`)
+      .then((response) => {
+        if (response.data.targetSids.length !== 0) {
+          this.targetSids = response.data.targetSids;
+          for (const sid of this.targetSids.reverse()) {
+            const idx = this.sids.indexOf(sid);
+            this.sids.splice(idx, 1);
+
+            this.displaySids.pop();
+            this.displaySids.unshift(sid);
+
+            this.target = this.composeTarget(this.displaySids[0]);
+          }
+        }
+      });
+    axios
+      .get(`${this.$API_HOST}/winners`)
+      .then((response) => {
+        console.log(response.data);
+        if (response.data.winners !== null) { // TODO: response inconsistent with targetsids
+          this.winners = response.data.winners.slice().reverse();
+        }
+      });
   },
   created() {
     this.initWS();
   },
   destroyed() {
     this.ws.close();
-  },
-  filters: {
-    prize: (value) => {
-      if (value === undefined) {
-        return 'Too late😢😢😢';
-      }
-      return `$${value.toLocaleString()} NTD`;
-    },
   },
   methods: {
     initWS() {
@@ -198,6 +252,55 @@ export default {
           Swal.fire({ title: 'Critical', text: error });
         });
     },
+    getDisplayImg(sid) {
+      let img;
+      if (sid) {
+        img = `https://lh3.googleusercontent.com/a-/${this.hsdic[sid].uri}=s96`;
+      } else {
+        img = unknown;
+      }
+      return img;
+    },
+    getWinnerImg(idx) {
+      let img;
+      const item = this.winners[idx];
+      if (item) {
+        img = `https://lh3.googleusercontent.com/a-/${this.hsdic[item[0]].uri}`;
+      } else {
+        img = unknown;
+      }
+      return img;
+    },
+    getWinnerName(idx) {
+      let name;
+      const item = this.winners[idx];
+      if (item) {
+        name = this.hsdic[item[0]].name;
+      } else {
+        name = '';
+      }
+      return name;
+    },
+    getWinnerTime(idx) {
+      let time;
+      const item = this.winners[idx];
+      if (item) {
+        time = this.toTST(item[1]);
+      } else {
+        time = '';
+      }
+      return time;
+    },
+    getWinnerPrize(idx) {
+      let prize;
+      const item = this.winners[idx];
+      if (item) {
+        prize = `$ ${this.prizes[idx].toLocaleString()}`;
+      } else {
+        prize = '$ ???';
+      }
+      return prize;
+    },
     getRandomSid() {
       const sid = getRandom(this.sids, 1)[0];
       return sid;
@@ -224,6 +327,10 @@ export default {
       this.sids.splice(idx, 1);
       this.target = this.composeTarget(sid);
       this.targetSids.unshift(sid);
+
+      this.displaySids.pop();
+      this.displaySids.unshift(sid);
+
       axios
         .put(`${this.$API_HOST}/targetsids`, {
           sid,
@@ -237,16 +344,29 @@ export default {
         });
     },
     start() {
-      this.isCounting = true;
-      this.target = {};
-      this.removeOneSid();
+      const wait = this.$store.state.countdownDuration + 1500;
+      this.restaurantSound.play();
+      this.countdownIsRunning = true;
+      this.ws.send('countdown');
+      this.$refs.countdownRef.startCountdown();
+
+      // play "GO" sound
       setTimeout(() => {
+        this.bellSound.play();
+      }, this.$store.state.countdownDuration);
+
+      // start countdown
+      setTimeout(() => {
+        this.removeOneSid();
+        this.countdownIsRunning = false;
+        this.isCounting = true;
         this.countdown--;
-      }, 1000);
+      }, wait);
     },
     resume() {
       this.isCounting = true;
       this.isPause = false;
+      this.restaurantSound.play();
       setTimeout(() => {
         this.countdown--;
       }, 1000);
@@ -254,21 +374,30 @@ export default {
     pause() {
       this.isCounting = false;
       this.isPause = true;
+      this.restaurantSound.pause();
     },
     reset() {
-      this.pause();
+      if (this.isCounting) {
+        this.pause();
+      }
       Swal.fire({
         title: 'Reset',
         text: 'Are you sure?',
         showCancelButton: true,
       }).then((result) => {
         if (result.value) {
+          // reset states
           this.isCounting = false;
           this.isPause = false;
+          this.isEnd = false;
           this.countdown = this.defaultCountdown;
           this.sids = Object.keys(this.hsdic);
+          this.displaySids = genDefaultDisplaySids();
           this.target = {};
           this.targetSids = [];
+          this.winners = [];
+
+          // delete targetSids
           axios
             .delete(`${this.$API_HOST}/targetsids`)
             .then((response) => {
@@ -277,9 +406,27 @@ export default {
             .catch((error) => {
               Swal.fire({ title: 'Critical', text: error });
             });
+
+          // delete winners
+          axios
+            .delete(`${this.$API_HOST}/winners`)
+            .then((response) => {
+              console.log(response);
+            })
+            .catch((error) => {
+              Swal.fire({ title: 'Critical', text: error });
+            });
+
+          // display random pics
           this.randomDisplay();
-        } else {
-          this.resume();
+
+          // reset timer
+          if (this.$refs.countdownRef.timer) {
+            this.$refs.countdownRef.resetCountdown();
+          }
+
+          // reset music
+          this.restaurantSound = new Audio(restaurant);
         }
       });
     },
@@ -290,9 +437,9 @@ export default {
       this.countdown = val;
     },
     countdown(val) {
-      // play beep sound
-      if (val <= 5) {
-        this.beepSound.play();
+      // play ding sound
+      if (val === this.defaultCountdown) {
+        this.dingSound.play();
       }
       if (val > 0) {
         setTimeout(() => {
@@ -302,6 +449,7 @@ export default {
               if (this.sids.length === 0) {
                 this.isCounting = false;
                 this.isPause = false;
+                this.isEnd = true;
                 Swal.fire('END!');
                 return;
               }
@@ -311,6 +459,15 @@ export default {
           }
         }, 1000);
       }
+    },
+    isCounting(val) {
+      new LS('isCounting').set(val);
+    },
+    isPause(val) {
+      new LS('isPause').set(val);
+    },
+    isEnd(val) {
+      new LS('isEnd').set(val);
     },
   },
 };
