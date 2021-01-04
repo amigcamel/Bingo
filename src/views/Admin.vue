@@ -61,6 +61,9 @@
                class="btn btn-danger"
                @click="reset()"
                >Reset</button>
+             <button class="btn btn-qr" @click="showQr()">
+               <span class="glyphicon glyphicon-qrcode"></span>
+             </button>
            </div>
          </div>
          <h2>Winners</h2>
@@ -103,6 +106,7 @@ import restaurant from '../assets/restaurant.mp3';
 import bell from '../assets/bell.mp3';
 import countdown from './Countdown.vue';
 import unknown from '../assets/unknown.png';
+import qrcode from '../assets/qrcode.png';
 
 // A localStorage wrapper
 function LS(name) {
@@ -430,6 +434,15 @@ export default {
         }
       });
     },
+    showQr() {
+      Swal.fire({
+        imageUrl: qrcode,
+        imageHeight: '510',
+        imageAlt: 'https://bingo.ffntea.club',
+        text: 'https://bingo.ffntea.club',
+        showConfirmButton: false,
+      });
+    },
   },
   watch: {
     defaultCountdown(val) {
@@ -472,3 +485,14 @@ export default {
   },
 };
 </script>
+
+<style scoped lang="scss">
+.btn-qr {
+  padding: 0;
+  background-color: transparent;
+}
+.btn-qr > span {
+  top: 3px;
+  font-size: 34px;
+}
+</style>
