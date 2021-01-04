@@ -248,8 +248,7 @@ export default {
       console.log('on close');
     },
     toTST(unixTime) {
-      console.log(unixTime);
-      return moment.unix(unixTime).format('HH:mm:ss.SSS');
+      return moment.unix(unixTime * 0.001).format('HH:mm:ss.SSS');
     },
     getWinners() {
       axios
