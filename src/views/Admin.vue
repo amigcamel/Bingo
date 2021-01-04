@@ -22,7 +22,9 @@
        </div>
        <div class="col-lg-6 col-md-6">
          <div class="jumbotron text-center">
+           <p>countdown</p>
            <h1>{{ countdown }}</h1>
+           <p>seconds</p>
          </div>
          <div class="row text-center">
            <div class="col-lg-6 col-md-6" v-show="!isCounting">
@@ -149,6 +151,12 @@ function genDefaultDisplaySids() {
   return new Array((18 + 1)).fill(null);
 }
 
+function initRestaurantSound() {
+  const audio = new Audio(restaurant);
+  audio.loop = true;
+  return audio;
+}
+
 export default {
   name: 'Admin',
   components: {
@@ -171,7 +179,7 @@ export default {
     dingSound: new Audio(ding),
     ws: null,
     applauseSound: new Audio(applause),
-    restaurantSound: new Audio(restaurant),
+    restaurantSound: initRestaurantSound(),
     bellSound: new Audio(bell),
     countdownIsRunning: null,
   }),
@@ -216,7 +224,7 @@ export default {
   },
   methods: {
     initWS() {
-      const uri = `${this.$WS_ORIGIN}/state`;
+      const uri = `${this.$WS_ORIGIN}`;
       this.ws = new WebSocket(uri);
       this.ws.onmessage = this.wsOnmessage;
       this.ws.onopen = this.wsOnopen;
@@ -240,7 +248,8 @@ export default {
       console.log('on close');
     },
     toTST(unixTime) {
-      return moment.unix(unixTime).format('HH:mm:ss');
+      console.log(unixTime);
+      return moment.unix(unixTime).format('HH:mm:ss.SSS');
     },
     getWinners() {
       axios
@@ -430,7 +439,10 @@ export default {
           }
 
           // reset music
-          this.restaurantSound = new Audio(restaurant);
+          this.restaurantSound = initRestaurantSound();
+
+          // send "game not start" signal to ws server
+          this.ws.send('gameNotStart');
         }
       });
     },

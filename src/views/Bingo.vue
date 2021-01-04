@@ -2,34 +2,45 @@
   <div>
     <countdown ref="countdownRef" v-show="countdownIsRunning"></countdown>
     <overlay v-show="!tokenIsValid"></overlay>
-    <div class="jumbotron text-center">
-      <h1>FFN BINGO</h1>
-      <h2>Rules</h2>
-      <div style="line-height: 5px;padding-top: 1em;">
-        <p>
+    <div class="jumbotron text-center" style="margin-bottom:0px">
+      <h1 style="font-weight: 900">FFN BINGO</h1>
+    </div>
+    <div class="well" :class="introOn ? 'well-custom' : 'well-custom-hidden'">
+      <div class="text-right">
+        <span
+          class="glyphicon"
+          :class="introOn ? 'glyphicon-menu-down' : 'glyphicon-menu-up'"
+          @click="introOn = !introOn"
+          ></span>
+      </div>
+      <ol>
+        <li>
           <u><span v-text="Math.pow(this.$gridnum, 2)"></span></u>
           headshots will be randomly selected.
-        </p>
-        <p>
+        </li>
+        <li>
           Mark off all numbers on at least <span class="ball">{{ win }}</span> lines.
-        </p>
-        <p>
+        </li>
+        <li>
           Wrong picutre doesn't count
-        </p>
-      </div>
+        </li>
+      </ol>
     </div>
     <div class="cont" :class="{container: !isMobile}">
       <div class="text-center">
-        <div class='row'>
-          <div class="col-xs-offset-3 col-xs-6">
-            <p class="alert">連線數： {{ lineCount }}</p>
-          </div>
-        </div>
         <div class="row" style="padding-bottom: 40px;">
-          <button
-            class="btn btn-danger"
-            @click="verify()"
-            >Claim Your Prize!</button>
+          <div class="col-xs-offset-2 col-xs-8">
+            <button
+              class="btn btn-custom-claim"
+              @click="verify()"
+              v-show="isStarted"
+              >Claim Prize</button>
+            <button
+              class="btn btn-custom-shuffle"
+              @click="shuffleSids()"
+              v-show="!isStarted"
+              >Shuffle</button>
+          </div>
         </div>
         <template v-for="(arr, idx1) in matrix">
           <div class='row row-centered' :key="'idx1'+idx1">
@@ -52,12 +63,10 @@
             </div>
           </div>
         </template>
-        <div class="row" style="padding-top: 40px;">
-          <button
-            class="btn btn-info"
-            @click="shuffleSids()"
-            v-show="displayShuffleButton"
-            >Shuffle</button>
+        <div class='row'>
+          <div class="col-xs-offset-3 col-xs-6" style="padding-top: 20px">
+            <p class="label label-custom">LINES: {{ lineCount }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -148,36 +157,66 @@ export default {
     win: 3,
     matrix: getMatrix(),
     sids: getSids(),
-    token: new URLSearchParams(window.location.search).get('token'),
+    token: localStorage.getItem('token') || null,
     tokenIsValid: true,
     countdownIsRunning: null,
     displayShuffleButton: true,
+    introOn: true,
+    isStarted: false,
   }),
+  beforeMount() {
+    window.addEventListener('beforeunload', this.preventNav);
+    this.$once('hook:beforeDestroy', () => {
+      window.removeEventListener('beforeunload', this.preventNav);
+    });
+  },
+  beforeRouteLeave() {
+    this.preventNav();
+  },
   mounted: function _() {
+    const settings = {
+      title: 'Input email address',
+      input: 'email',
+      inputLabel: 'Your FFN email address',
+      inputPlaceholder: 'xxx@ffn.com',
+      allowEscapeKey: false,
+      allowOutsideClick: false,
+      confirmButtonText: 'Join',
+      preConfirm: (email) => {
+        axios
+          .get(`${this.$API_HOST}/token/${email}`)
+          .then((response) => {
+            console.log(response);
+            if (response.data.sid) {
+              this.token = email;
+              localStorage.setItem('token', email);
+              this.tokenIsValid = true;
+              this.initWS();
+              Swal.fire({
+                icon: 'success',
+                title: 'Welcome',
+                text: `Hi, ${response.data.name}!`,
+              });
+            } else {
+              Swal.fire({ title: 'Error', text: 'Email not exist!' })
+                .then(() => {
+                  Swal.fire(settings);
+                });
+            }
+          })
+          .catch((error) => {
+            Swal.fire({ title: 'Critical', text: error })
+              .then(() => {
+                Swal.fire(settings);
+              });
+          });
+      },
+    };
     if (!this.token) {
-      Swal.fire({ title: 'Error', text: 'Empty token' })
-        .then(() => {
-          this.tokenIsValid = false;
-        });
-      return;
+      Swal.fire(settings);
+    } else {
+      this.initWS();
     }
-    axios
-      .get(`${this.$API_HOST}/token/${this.token}`)
-      .then((response) => {
-        console.log(response);
-        if (response.data.sid) {
-          this.tokenIsValid = true;
-          this.initWS();
-        } else {
-          Swal.fire({ title: 'Error', text: 'Invalid token!' })
-            .then(() => {
-              this.tokenIsValid = false;
-            });
-        }
-      })
-      .catch((error) => {
-        Swal.fire({ title: 'Critical', text: error });
-      });
   },
   computed: {
     lineCount() {
@@ -210,8 +249,13 @@ export default {
     },
   },
   methods: {
+    /* eslint no-param-reassign: "error" */
+    preventNav(event) {
+      event.preventDefault();
+      event.returnValue = '';
+    },
     initWS() {
-      const uri = `${this.$WS_ORIGIN}/state`;
+      const uri = `${this.$WS_ORIGIN}`;
       this.ws = new WebSocket(uri);
       this.ws.onmessage = this.wsOnmessage;
       this.ws.onopen = this.wsOnopen;
@@ -220,17 +264,31 @@ export default {
     },
     wsOnmessage(event) {
       console.log('on message');
-      if (JSON.parse(event.data).countdown === 1) {
+      const data = JSON.parse(event.data);
+      if (data.countdown === 1) {
         this.countdownIsRunning = true;
+        this.isStarted = true;
         this.$refs.countdownRef.startCountdown();
         setTimeout(() => {
           this.countdownIsRunning = false;
           this.displayShuffleButton = false;
         }, this.$store.state.countdownDuration + 1500);
+      } else if (data.gameStatus !== undefined) {
+        switch (data.gameStatus) {
+          case 0:
+            this.isStarted = false;
+            break;
+          case 1:
+            this.isStarted = true;
+            break;
+          default:
+            console.log(`Unknown gameStatus: ${data.gameStatus}`);
+        }
       }
     },
     wsOnopen() {
-      console.log('on open');
+      console.log('on open, check gameStatus');
+      this.ws.send('gameStatus');
     },
     wsOnerror() {
       console.log('on error');
@@ -239,17 +297,9 @@ export default {
       console.log('on close');
     },
     shuffleSids() {
-      Swal.fire({
-        icon: 'warning',
-        text: 'Are you sure you want to shuffle photos?',
-        showCancelButton: true,
-      }).then((result) => {
-        if (result.value) {
-          localStorage.removeItem('matrix');
-          this.sids = getRandomSids();
-          this.matrix = getMatrix();
-        }
-      });
+      localStorage.removeItem('matrix');
+      this.sids = getRandomSids();
+      this.matrix = getMatrix();
     },
     cellText(idx1, idx2) {
       return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name;
@@ -276,19 +326,24 @@ export default {
           token: this.token,
         })
         .then((response) => {
-          let icon;
-          let title;
-          let text;
           if (response.data.status) {
-            icon = 'success';
-            title = 'Congratulations!';
-            text = 'You just won the prize!';
+            Swal.fire({
+              icon: 'success',
+              title: 'Congrats!',
+              text: 'You just won the prize!',
+              background: 'rgba(255,255,255,0.7)',
+              backdrop: 'url("https://media.giphy.com/media/5T06ftQWtCMy0XFaaI/giphy.gif")',
+              allowEscapeKey: false,
+              allowOutsideClick: false,
+              showConfirmButton: false,
+            });
           } else {
-            icon = 'error';
-            title = 'Wait a minute!';
-            text = 'You result dosen\'t look right, please check again!';
+            Swal.fire({
+              icon: 'error',
+              title: 'Wait a minute!',
+              text: 'You result dosen\'t look right, please check again!',
+            });
           }
-          Swal.fire({ icon, title, text });
         })
         .catch((error) => {
           Swal.fire({ title: 'Critical', text: error });
@@ -298,3 +353,46 @@ export default {
 };
 
 </script>
+
+<style scoped lang="scss">
+.well-custom {
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 0;
+  font-size: 0.9em;
+  padding: 7px;
+}
+.well-custom-hidden {
+  @extend .well-custom;
+  height: 25px;
+  overflow: hidden;
+}
+@mixin btn-custom($bg, $shadow) {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1.5rem;
+  background-color: $bg;
+  color: #000;
+  transition: all .5s ease 0s;
+  box-shadow: 0 10px $shadow;
+};
+@mixin btn-custom-active($shadow) {
+  &:active {
+    box-shadow: 0 5px $shadow;
+    transform: translateY(5px);
+  }
+}
+.btn-custom-claim {
+  @include btn-custom(#f6e58d, #f9ca24)
+}
+.btn-custom-claim:active {
+  @include btn-custom-active(#f0932b)
+}
+.btn-custom-shuffle {
+  @include btn-custom(#ffa07a, #fa8072)
+}
+.btn-custom-shuffle:active {
+  @include btn-custom-active(#cd5c5c)
+}
+
+</style>
