@@ -9,9 +9,9 @@
            class="text-center"
            >
            <img :src="target.url" height="500px">
-           <div class="name2">{{ `${target.sid} ${target.name}` }}</div>
+           <div class="name2">{{ `${target.sid.slice(1)} ${target.name}` }}</div>
          </div>
-         <div class="row">
+         <div class="row" style="padding-top: 15px;">
            <div
              class="col-lg-2 col-md-2 text-center"
              v-for="(sid, index) in displaySids.slice(1)"
@@ -22,7 +22,7 @@
        </div>
        <div class="col-lg-6 col-md-6">
          <div class="jumbotron text-center">
-           <p style="margin-bottom:-27px">countdown</p>
+           <p>countdown</p>
            <h1>{{ countdown }}</h1>
            <p>seconds</p>
          </div>
@@ -188,7 +188,8 @@ export default {
   }),
   mounted: function _() {
     // simple auth
-    this.auth();
+    // this.auth();
+    this.isAuth = true;
 
     // check winners
     this.getWinners();
@@ -294,7 +295,14 @@ export default {
       return img;
     },
     getWinnerSid(idx) {
-      return this.winners[idx][0].slice(1);
+      const item = this.winners[idx];
+      let output;
+      if (item) {
+        output = item[0].slice(1);
+      } else {
+        output = '';
+      }
+      return output;
     },
     getWinnerImg(idx) {
       let img;
