@@ -80,6 +80,7 @@ import Vue from 'vue';
 import overlay from './Overlay.vue';
 import countdown from './Countdown.vue';
 import hsdic from '../data';
+import PRIZES from '../prize';
 
 Vue.prototype.$gridnum = 5;
 
@@ -163,6 +164,7 @@ export default {
     displayShuffleButton: true,
     introOn: true,
     isStarted: false,
+    prizes: PRIZES,
   }),
   beforeMount() {
     window.addEventListener('beforeunload', this.preventNav);
@@ -327,16 +329,29 @@ export default {
         })
         .then((response) => {
           if (response.data.status) {
-            Swal.fire({
-              icon: 'success',
-              title: 'Congrats!',
-              text: 'You just won the prize!',
-              background: 'rgba(255,255,255,0.7)',
-              backdrop: 'url("https://media.giphy.com/media/5T06ftQWtCMy0XFaaI/giphy.gif")',
-              allowEscapeKey: false,
-              allowOutsideClick: false,
-              showConfirmButton: false,
-            });
+            if ((response.data.rank + 1) <= this.prizes.length) {
+              Swal.fire({
+                icon: 'success',
+                title: 'CONGRATS!!',
+                text: `You just won $ ${this.prizes[response.data.rank].toLocaleString()}!`,
+                background: 'rgba(255,255,255,0.7)',
+                backdrop: 'url("https://media.giphy.com/media/5T06ftQWtCMy0XFaaI/giphy.gif")',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+              });
+            } else {
+              Swal.fire({
+                icon: 'warning',
+                title: 'YOU LOSE',
+                text: 'Too late, you missed the prize...',
+                background: 'rgba(0,0,0,0.7)',
+                backdrop: 'url("https://media.giphy.com/media/3oEjHB1EKuujDjYFWw/giphy.gif")',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+              });
+            }
           } else {
             Swal.fire({
               icon: 'error',
