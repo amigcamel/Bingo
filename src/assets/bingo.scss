@@ -58,6 +58,11 @@ $base-color: rgba( 232, 173, 170, 0.7);
   background: $base-color;
   color: #000;
 }
+.badge-custom {
+  background: $base-color;
+  color: #000;
+  margin: 0 3px 0 3px;
+}
 
 .ball {
   display: inline-block;

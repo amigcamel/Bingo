@@ -22,7 +22,7 @@
        </div>
        <div class="col-lg-6 col-md-6">
          <div class="jumbotron text-center">
-           <p>countdown</p>
+           <p style="margin-bottom:-27px">countdown</p>
            <h1>{{ countdown }}</h1>
            <p>seconds</p>
          </div>
@@ -83,6 +83,7 @@
                <td>{{ idx+1 }}</td>
                <td>
                  <img :src="getWinnerImg(idx)" width="30px" style="border-radius:50%">
+                 <span class="badge badge-custom">{{ getWinnerSid(idx) }}</span>
                  {{ getWinnerName(idx) }}
                </td>
                <td>{{ getWinnerTime(idx) }}</td>
@@ -291,6 +292,9 @@ export default {
         img = unknown;
       }
       return img;
+    },
+    getWinnerSid(idx) {
+      return this.winners[idx][0].slice(1);
     },
     getWinnerImg(idx) {
       let img;
