@@ -1,7 +1,7 @@
 <template>
   <div>
     <countdown ref="countdownRef" v-show="countdownIsRunning"></countdown>
-    <div class="container" style="padding-top: 60px">
+    <div class="container" style="padding-top: 60px" v-if="isAuth">
      <div class="row">
        <div class="col-lg-6 col-md-6">
          <div
@@ -100,6 +100,7 @@
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import moment from 'moment';
+import sha256 from 'crypto-js/sha256';
 import HSDIC from '../data';
 import PRIZES from '../prize';
 import applause from '../assets/applause.mp3';
@@ -182,8 +183,12 @@ export default {
     restaurantSound: initRestaurantSound(),
     bellSound: new Audio(bell),
     countdownIsRunning: null,
+    isAuth: false,
   }),
   mounted: function _() {
+    // simple auth
+    this.auth();
+
     // check winners
     this.getWinners();
 
@@ -249,6 +254,20 @@ export default {
     },
     toTST(unixTime) {
       return moment.unix(unixTime * 0.001).format('HH:mm:ss.SSS');
+    },
+    auth() {
+      Swal.fire({
+        inputLabel: 'PASSWORD',
+        input: 'password',
+        confirmButtonText: 'Verify',
+        preConfirm: (password) => {
+          if (sha256(password).toString() !== 'cad0a69724f26c147d1a1c970a2ed32d9a000912598a668cb457dbef2cf43f03') {
+            this.auth();
+          } else {
+            this.isAuth = true;
+          }
+        },
+      });
     },
     getWinners() {
       axios
