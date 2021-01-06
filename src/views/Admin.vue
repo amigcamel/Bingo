@@ -49,18 +49,6 @@
                class="btn btn-default"
                @click="reset()"
                ><i class="glyphicon glyphicon-step-backward"></i>Reset</button>
-             <!--
-             <button
-               class="btn btn-default"
-               @click="gameStart()"
-               v-show="true"
-               ><i class="glyphicon glyphicon-ok-sign"></i></button>
-             <button
-               class="btn btn-default"
-               @click="gameNotStart()"
-               v-show="false"
-               ><i class="glyphicon glyphicon-remove-sign"></i></button>
-             -->
            </div>
            <div class="col-lg-4 col-md-4">
              <div class="input-group">
@@ -159,7 +147,7 @@ function getRandom(arr, num) {
 }
 
 function genDefaultDisplaySids() {
-  return new Array((24 + 1)).fill(null);
+  return new Array((12 + 1)).fill(null);
 }
 
 function initRestaurantSound() {
@@ -399,7 +387,6 @@ export default {
       const wait = this.$store.state.countdownDuration + 1500;
       this.restaurantSound.play();
       this.countdownIsRunning = true;
-      this.ws.send('countdown');
       this.$refs.countdownRef.startCountdown();
 
       // play "GO" sound
@@ -479,9 +466,6 @@ export default {
 
           // reset music
           this.restaurantSound = initRestaurantSound();
-
-          // send "game not start" signal to ws server
-          this.ws.send('gameNotStart');
         }
       });
     },

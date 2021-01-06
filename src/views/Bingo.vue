@@ -1,6 +1,5 @@
 <template>
   <div>
-    <countdown ref="countdownRef" v-show="countdownIsRunning"></countdown>
     <overlay v-show="!tokenIsValid"></overlay>
     <div class="jumbotron text-center" style="margin-bottom:0px">
       <h1 style="font-weight: 900">FFN BINGO</h1>
@@ -31,15 +30,13 @@
         <div class="row" style="padding-bottom: 40px;">
           <div class="col-xs-offset-2 col-xs-8">
             <button
-              class="btn btn-custom-claim"
-              @click="verify()"
-              v-show="isStarted"
-              >Claim Prize</button>
-            <button
               class="btn btn-custom-shuffle"
               @click="shuffleSids()"
-              v-show="!isStarted"
               >Shuffle</button>
+            <button
+              class="btn btn-custom-claim"
+              @click="verify()"
+              >Claim Prize</button>
           </div>
         </div>
         <template v-for="(arr, idx1) in matrix">
@@ -78,7 +75,6 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import Vue from 'vue';
 import overlay from './Overlay.vue';
-import countdown from './Countdown.vue';
 import hsdic from '../data';
 import PRIZES from '../prize';
 
@@ -152,7 +148,6 @@ export default {
   name: 'Bingo',
   components: {
     overlay,
-    countdown,
   },
   data: () => ({
     win: 3,
@@ -160,10 +155,8 @@ export default {
     sids: getSids(),
     token: localStorage.getItem('token') || null,
     tokenIsValid: true,
-    countdownIsRunning: null,
     displayShuffleButton: true,
     introOn: true,
-    isStarted: false,
     prizes: PRIZES,
   }),
   beforeMount() {
@@ -193,7 +186,6 @@ export default {
               this.token = email;
               localStorage.setItem('token', email);
               this.tokenIsValid = true;
-              this.initWS();
               Swal.fire({
                 icon: 'success',
                 title: 'Welcome',
@@ -216,8 +208,6 @@ export default {
     };
     if (!this.token) {
       Swal.fire(settings);
-    } else {
-      this.initWS();
     }
   },
   computed: {
@@ -256,52 +246,18 @@ export default {
       event.preventDefault();
       event.returnValue = '';
     },
-    initWS() {
-      const uri = `${this.$WS_ORIGIN}`;
-      this.ws = new WebSocket(uri);
-      this.ws.onmessage = this.wsOnmessage;
-      this.ws.onopen = this.wsOnopen;
-      this.ws.onerror = this.wsOnerror;
-      this.ws.onclose = this.wsClose;
-    },
-    wsOnmessage(event) {
-      console.log('on message');
-      const data = JSON.parse(event.data);
-      if (data.countdown === 1) {
-        this.countdownIsRunning = true;
-        this.isStarted = true;
-        this.$refs.countdownRef.startCountdown();
-        setTimeout(() => {
-          this.countdownIsRunning = false;
-          this.displayShuffleButton = false;
-        }, this.$store.state.countdownDuration + 1500);
-      } else if (data.gameStatus !== undefined) {
-        switch (data.gameStatus) {
-          case 0:
-            this.isStarted = false;
-            break;
-          case 1:
-            this.isStarted = true;
-            break;
-          default:
-            console.log(`Unknown gameStatus: ${data.gameStatus}`);
-        }
-      }
-    },
-    wsOnopen() {
-      console.log('on open, check gameStatus');
-      this.ws.send('gameStatus');
-    },
-    wsOnerror() {
-      console.log('on error');
-    },
-    wsClose() {
-      console.log('on close');
-    },
     shuffleSids() {
-      localStorage.removeItem('matrix');
-      this.sids = getRandomSids();
-      this.matrix = getMatrix();
+      Swal.fire({
+        icon: 'warning',
+        text: 'Are you sure you want to shuffle photos?',
+        showCancelButton: true,
+      }).then((result) => {
+        if (result.value) {
+          localStorage.removeItem('matrix');
+          this.sids = getRandomSids();
+          this.matrix = getMatrix();
+        }
+      });
     },
     cellText(idx1, idx2) {
       return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name;
@@ -382,8 +338,7 @@ export default {
   overflow: hidden;
 }
 @mixin btn-custom($bg, $shadow) {
-  display: block;
-  width: 100%;
+  width: 50%;
   padding: 1rem;
   border-radius: 1.5rem;
   background-color: $bg;
