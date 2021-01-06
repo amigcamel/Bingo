@@ -1,7 +1,8 @@
 <template>
   <div>
     <countdown ref="countdownRef" v-show="countdownIsRunning"></countdown>
-    <div class="container" style="padding-top: 60px" v-if="isAuth">
+    <div class="cr" @click="showQr()">QR Code</div>
+    <div class="container" style="padding-top: 10px" v-if="isAuth">
      <div class="row">
        <div class="col-lg-6 col-md-6">
          <div
@@ -21,55 +22,63 @@
          </div>
        </div>
        <div class="col-lg-6 col-md-6">
-         <div class="jumbotron text-center">
+         <div class="jumbotron text-center countdown-box">
            <p>countdown</p>
            <h1>{{ countdown }}</h1>
            <p>seconds</p>
          </div>
          <div class="row text-center">
-           <div class="col-lg-6 col-md-6" v-show="!isCounting">
+           <div class="col-lg-8 col-md-8 text-left">
+             <button
+               class="btn btn-default"
+               @click="start()"
+               :disabled="isCounting || isPause || isEnd"
+               ><i class="glyphicon glyphicon-play"></i> Start</button>
+             <button
+               class="btn btn-default"
+               @click="pause()"
+               :disabled="!isCounting"
+               v-show="!isPause"
+               ><i class="glyphicon glyphicon-pause"></i> Pause</button>
+             <button
+               class="btn btn-default"
+               @click="resume()"
+               v-show="isPause"
+               ><i class="glyphicon glyphicon-repeat"></i> Resume</button>
+             <button
+               class="btn btn-default"
+               @click="reset()"
+               ><i class="glyphicon glyphicon-step-backward"></i>Reset</button>
+             <!--
+             <button
+               class="btn btn-default"
+               @click="gameStart()"
+               v-show="true"
+               ><i class="glyphicon glyphicon-ok-sign"></i></button>
+             <button
+               class="btn btn-default"
+               @click="gameNotStart()"
+               v-show="false"
+               ><i class="glyphicon glyphicon-remove-sign"></i></button>
+             -->
+           </div>
+           <div class="col-lg-4 col-md-4">
              <div class="input-group">
-               <span class="input-group-addon">Countdown</span>
+               <span class="input-group-addon">Timer</span>
                <input
                  type="number"
                  class="form-control"
-                 max="99" min="1"
+                 max="20" min="3"
+                 onKeyDown="return false"
+                 :disabled="isCounting"
                  v-model.number="defaultCountdown"
                  >
                <span class="input-group-addon">sec</span>
              </div>
            </div>
-           <div
-             class="col-lg-6 col-md-6"
-             :class="{'col-lg-offset-6': isCounting, 'col-md-offset-6': isCounting}"
-             >
-             <button
-               class="btn btn-info"
-               @click="start()"
-               :disabled="isCounting || isPause || isEnd"
-               >Start</button>
-             <button
-               class="btn btn-info"
-               @click="pause()"
-               :disabled="!isCounting"
-               v-show="!isPause"
-               >Pause</button>
-             <button
-               class="btn btn-info"
-               @click="resume()"
-               v-show="isPause"
-               >Resume</button>
-             <button
-               class="btn btn-danger"
-               @click="reset()"
-               >Reset</button>
-             <button class="btn btn-qr" @click="showQr()">
-               <span class="glyphicon glyphicon-qrcode"></span>
-             </button>
-           </div>
          </div>
-         <h2>Winners</h2>
-         <table class="table">
+         <table class="table table-striped" style="margin-left: 10px;">
+           <caption class="winner-caption">WINNERS</caption>
            <thead>
              <tr>
                <th>#</th>
@@ -79,12 +88,12 @@
              </tr>
            </thead>
            <tbody>
-             <tr v-for="(prize, idx) in prizes" :key="idx">
+             <tr v-for="(prize, idx) in prizes" :key="idx" class="winner">
                <td>{{ idx+1 }}</td>
                <td>
-                 <img :src="getWinnerImg(idx)" width="30px" style="border-radius:50%">
+                 <img :src="getWinnerImg(idx)" width="40" style="border-radius:50%">
                  <span class="badge badge-custom">{{ getWinnerSid(idx) }}</span>
-                 {{ getWinnerName(idx) }}
+                 <span>{{ getWinnerName(idx) }}</span>
                </td>
                <td>{{ getWinnerTime(idx) }}</td>
                <td>{{ getWinnerPrize(idx) }}</td>
@@ -150,7 +159,7 @@ function getRandom(arr, num) {
 }
 
 function genDefaultDisplaySids() {
-  return new Array((18 + 1)).fill(null);
+  return new Array((24 + 1)).fill(null);
 }
 
 function initRestaurantSound() {
@@ -185,11 +194,11 @@ export default {
     bellSound: new Audio(bell),
     countdownIsRunning: null,
     isAuth: false,
+    // isStarted: false,
   }),
   mounted: function _() {
     // simple auth
-    // this.auth();
-    this.isAuth = true;
+    this.auth();
 
     // check winners
     this.getWinners();
@@ -529,12 +538,19 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.btn-qr {
-  padding: 0;
-  background-color: transparent;
+.countdown-box {
+ padding-top:10px;
+ padding-bottom:10px;
+ margin-bottom:0px;
 }
-.btn-qr > span {
-  top: 3px;
-  font-size: 34px;
+.countdown-box h1 {
+  margin: 10px 0px 10px 0px;
+}
+.winner-caption {
+  text-align: center;
+  font-size: 30px;
+}
+.btn {
+  width: 90px;
 }
 </style>

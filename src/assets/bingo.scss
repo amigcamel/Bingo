@@ -1,3 +1,5 @@
+$base-color: rgba( 232, 173, 170, 0.7);
+
 body {
   font-family: 'Exo 2', sans-serif;
   background-image: url('paisley.png');
@@ -28,6 +30,17 @@ body {
 .name2 {
   font-size: 30px;
 }
+.cr {
+  width: 200px;
+  padding: 16px;
+  position: fixed;
+  text-align: center;
+  top: 25px;
+  right: -50px;
+  transform: rotate(45deg);
+  background: $base-color;
+  cursor: pointer;
+}
 
 .xycenter {
   background: #808cff;
@@ -48,7 +61,6 @@ body {
   text-align: center;
 }
 
-$base-color: rgba( 232, 173, 170, 0.7);
 
 .jumbotron {
   font-family: 'Concert One', cursive;
@@ -62,6 +74,9 @@ $base-color: rgba( 232, 173, 170, 0.7);
   background: $base-color;
   color: #000;
   margin: 0 3px 0 3px;
+}
+.winner {
+  font-size: 1.5em;
 }
 .name2 {
   font-family: 'Concert One', cursive;
