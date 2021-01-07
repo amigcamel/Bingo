@@ -9,7 +9,7 @@
       @click="introOn = !introOn"
       class="well"
       :class="introOn ? 'well-custom' : 'well-custom-hidden'">
-      <div class="row">
+      <div>
         <div class="col-xs-offset-2 col-xs-8 text-center">
           <span style="font-weight: 600">RULES</span>
         </div>
@@ -19,8 +19,8 @@
             :class="introOn ? 'glyphicon-menu-up' : 'glyphicon-menu-down'"
             ></span>
         </div>
-
       </div>
+      <br>
       <ol>
         <li>
           <u><span v-text="Math.pow(this.$gridnum, 2)"></span></u>
