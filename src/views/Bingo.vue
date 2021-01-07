@@ -3,19 +3,28 @@
     <overlay v-show="!tokenIsValid"></overlay>
     <div class="jumbotron text-center" style="margin-bottom:0px">
       <h1 style="font-weight: 900">FFN BINGO</h1>
+      <small>{{ name }}</small>
     </div>
-    <div class="well" :class="introOn ? 'well-custom' : 'well-custom-hidden'">
-      <div class="text-right">
-        <span
-          class="glyphicon"
-          :class="introOn ? 'glyphicon-menu-down' : 'glyphicon-menu-up'"
-          @click="introOn = !introOn"
-          ></span>
+    <div
+      @click="introOn = !introOn"
+      class="well"
+      :class="introOn ? 'well-custom' : 'well-custom-hidden'">
+      <div class="row">
+        <div class="col-xs-offset-2 col-xs-8 text-center">
+          <span style="font-weight: 600">RULES</span>
+        </div>
+        <div class="col-xs-2 text-right">
+          <span
+            class="glyphicon"
+            :class="introOn ? 'glyphicon-menu-up' : 'glyphicon-menu-down'"
+            ></span>
+        </div>
+
       </div>
       <ol>
         <li>
           <u><span v-text="Math.pow(this.$gridnum, 2)"></span></u>
-          headshots will be randomly selected.
+          photos will be randomly selected.
         </li>
         <li>
           Mark off all numbers on at least <span class="ball">{{ win }}</span> lines.
@@ -28,15 +37,18 @@
     <div class="cont" :class="{container: !isMobile}">
       <div class="text-center">
         <div class="row" style="padding-bottom: 40px;">
-          <div class="col-xs-offset-2 col-xs-8">
+          <div class="col-xs-6">
             <button
               class="btn btn-custom-shuffle"
               @click="shuffleSids()"
+              v-show="!shuffleIsTimeout"
               >Shuffle</button>
+          </div>
+          <div class="col-xs-6" :class="{'col-xs-offset-3': shuffleIsTimeout}">
             <button
               class="btn btn-custom-claim"
               @click="verify()"
-              >Claim Prize</button>
+              >BINGO</button>
           </div>
         </div>
         <template v-for="(arr, idx1) in matrix">
@@ -144,6 +156,16 @@ function collectTargetSids(sids, matrix) {
   return res;
 }
 
+function getShuffleIsTimeout() {
+  let shuffleIsTimeout;
+  if (localStorage.getItem('name')) {
+    shuffleIsTimeout = 1;
+  } else {
+    shuffleIsTimeout = localStorage.getItem('shuffleIsTimeout') ? 1 : 0;
+  }
+  return shuffleIsTimeout;
+}
+
 export default {
   name: 'Bingo',
   components: {
@@ -158,6 +180,8 @@ export default {
     displayShuffleButton: true,
     introOn: true,
     prizes: PRIZES,
+    name: localStorage.getItem('name') || null,
+    shuffleIsTimeout: getShuffleIsTimeout(),
   }),
   beforeMount() {
     window.addEventListener('beforeunload', this.preventNav);
@@ -186,11 +210,15 @@ export default {
               this.token = email;
               localStorage.setItem('token', email);
               this.tokenIsValid = true;
+              const { name } = response.data;
+              this.name = name;
+              localStorage.setItem('name', name);
               Swal.fire({
                 icon: 'success',
                 title: 'Welcome',
-                text: `Hi, ${response.data.name}!`,
+                text: `Hi, ${name}!`,
               });
+              this.timeoutShuffle();
             } else {
               Swal.fire({ title: 'Error', text: 'Email not exist!' })
                 .then(() => {
@@ -246,18 +274,17 @@ export default {
       event.preventDefault();
       event.returnValue = '';
     },
+    timeoutShuffle() {
+      console.log('shuffle timer start');
+      setTimeout(() => {
+        this.shuffleIsTimeout = 1;
+        localStorage.setItem('shuffleIsTimeout', 1);
+      }, 60000);
+    },
     shuffleSids() {
-      Swal.fire({
-        icon: 'warning',
-        text: 'Are you sure you want to shuffle photos?',
-        showCancelButton: true,
-      }).then((result) => {
-        if (result.value) {
-          localStorage.removeItem('matrix');
-          this.sids = getRandomSids();
-          this.matrix = getMatrix();
-        }
-      });
+      localStorage.removeItem('matrix');
+      this.sids = getRandomSids();
+      this.matrix = getMatrix();
     },
     cellText(idx1, idx2) {
       return hsdic[this.sids[(idx1 * this.$gridnum) + idx2]].name;
@@ -331,14 +358,17 @@ export default {
   border: 0;
   font-size: 0.9em;
   padding: 7px;
+  max-height: 80px;
+  transition: max-height 0.15s ease-out;
 }
 .well-custom-hidden {
   @extend .well-custom;
-  height: 25px;
+  max-height: 26px;
   overflow: hidden;
+  transition: max-height 0.25s ease-in;
 }
 @mixin btn-custom($bg, $shadow) {
-  width: 50%;
+  width: 100%;
   padding: 1rem;
   border-radius: 1.5rem;
   background-color: $bg;

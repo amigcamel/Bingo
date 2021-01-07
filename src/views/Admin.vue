@@ -14,10 +14,10 @@
          </div>
          <div class="row" style="padding-top: 15px;">
            <div
-             class="col-lg-2 col-md-2 text-center"
+             class="col-lg-3 col-md-3 text-center"
              v-for="(sid, index) in displaySids.slice(1)"
              :key="index">
-             <img :src="getDisplayImg(sid)" height="96">
+             <img :src="getDisplayImg(sid)" height="150">
            </div>
          </div>
        </div>
@@ -182,7 +182,6 @@ export default {
     bellSound: new Audio(bell),
     countdownIsRunning: null,
     isAuth: false,
-    // isStarted: false,
   }),
   mounted: function _() {
     // simple auth
@@ -239,7 +238,6 @@ export default {
       console.log('on message');
       if (JSON.parse(event.data).update === 1) {
         this.getWinners();
-        this.applauseSound.play();
       }
     },
     wsOnopen() {
@@ -499,6 +497,7 @@ export default {
                 this.isPause = false;
                 this.isEnd = true;
                 Swal.fire('END!');
+                this.restaurantSound.pause();
                 return;
               }
               this.removeOneSid();
@@ -516,6 +515,11 @@ export default {
     },
     isEnd(val) {
       new LS('isEnd').set(val);
+    },
+    winners(val) {
+      if (val.length <= this.prizes.length) {
+        this.applauseSound.play();
+      }
     },
   },
 };
